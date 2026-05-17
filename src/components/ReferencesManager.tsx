@@ -1,5 +1,8 @@
 import { useState } from 'react';
-import { Plus, Trash2, ChevronDown, ChevronUp } from 'lucide-react';
+import {
+  Plus, Trash2, ChevronDown, ChevronUp,
+  BookOpen, Copy, Check, ArrowUpDown,
+} from 'lucide-react';
 
 export type ReferenceType = 'book' | 'article' | 'website' | 'video';
 
@@ -9,15 +12,73 @@ export interface Reference {
   author: string;
   year: string;
   title: string;
-  publisher?: string; // For book
-  journal?: string; // For article
-  volume?: string; // For article
-  issue?: string; // For article
-  pages?: string; // For article
-  url?: string; // For website/video
-  siteName?: string; // For website
-  channel?: string; // For video
+  publisher?: string;
+  journal?: string;
+  volume?: string;
+  issue?: string;
+  pages?: string;
+  doi?: string;
+  url?: string;
+  siteName?: string;
+  channel?: string;
 }
+
+export const getYear = (year: string): string => year.trim() || 's.f.';
+
+export const getReferenceText = (ref: Reference): string => {
+  const author = ref.author || '[Autor]';
+  const year = getYear(ref.year);
+  const title = ref.title || '[Título]';
+
+  switch (ref.type) {
+    case 'book': {
+      return `${author} (${year}). ${title}. ${ref.publisher || '[Editorial]'}.`;
+    }
+    case 'article': {
+      const journal = ref.journal || '[Revista]';
+      const volume = ref.volume || '[Volumen]';
+      const issue = ref.issue ? `(${ref.issue})` : '';
+      const pages = ref.pages ? `, ${ref.pages}` : '';
+      const doi = ref.doi ? ` https://doi.org/${ref.doi}` : '';
+      return `${author} (${year}). ${title}. ${journal}, ${volume}${issue}${pages}.${doi}`;
+    }
+    case 'website': {
+      return `${author} (${year}). ${title}. ${ref.siteName || '[Nombre del Sitio]'}. ${ref.url || '[URL]'}`;
+    }
+    case 'video': {
+      return `${author} (${year}). ${title} [Video]. ${ref.channel || '[Canal]'}. ${ref.url || '[URL]'}`;
+    }
+    default:
+      return 'Referencia incompleta';
+  }
+};
+
+interface FieldProps {
+  label: string;
+  hint?: string;
+  value: string;
+  onChange: (v: string) => void;
+  placeholder?: string;
+  colSpan?: boolean;
+}
+
+const Field: React.FC<FieldProps> = ({ label, hint, value, onChange, placeholder, colSpan }) => (
+  <div className={colSpan ? 'sm:col-span-2' : ''}>
+    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+      {label}
+      {hint && (
+        <span className="text-xs text-gray-500 dark:text-gray-400 font-normal ml-1">{hint}</span>
+      )}
+    </label>
+    <input
+      type="text"
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      className="block w-full sm:text-sm border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+      placeholder={placeholder}
+    />
+  </div>
+);
 
 interface ReferencesManagerProps {
   references: Reference[];
@@ -26,6 +87,8 @@ interface ReferencesManagerProps {
 
 const ReferencesManager: React.FC<ReferencesManagerProps> = ({ references, setReferences }) => {
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [isSorted, setIsSorted] = useState(false);
 
   const addReference = () => {
     const newRef: Reference = {
@@ -50,253 +113,295 @@ const ReferencesManager: React.FC<ReferencesManagerProps> = ({ references, setRe
     );
   };
 
+  const handleCopy = async (ref: Reference) => {
+    await navigator.clipboard.writeText(getReferenceText(ref));
+    setCopiedId(ref.id);
+    setTimeout(() => setCopiedId(null), 2000);
+  };
+
+  const displayRefs = isSorted
+    ? [...references].sort((a, b) => a.author.localeCompare(b.author, 'es'))
+    : references;
+
   const generatePreview = (ref: Reference) => {
-    // Basic APA 7th Edition preview (simplified)
     const author = ref.author || '[Autor]';
-    const year = ref.year || '[Año]';
+    const year = getYear(ref.year);
     const title = ref.title || '[Título]';
 
-    if (ref.type === 'book') {
-      const publisher = ref.publisher || '[Editorial]';
-      return (
-        <span>
-          {author} ({year}). <em>{title}</em>. {publisher}.
-        </span>
-      );
-    } else if (ref.type === 'article') {
-      const journal = ref.journal || '[Revista]';
-      const volume = ref.volume ? `<i>${ref.volume}</i>` : '[Volumen]';
-      const issue = ref.issue ? `(${ref.issue})` : '';
-      const pages = ref.pages ? `, ${ref.pages}` : '';
-      return (
-        <span dangerouslySetInnerHTML={{
-          __html: `${author} (${year}). ${title}. <em>${journal}</em>, ${volume}${issue}${pages}.`
-        }} />
-      );
-    } else if (ref.type === 'website') {
-      const siteName = ref.siteName || '[Nombre del Sitio]';
-      const url = ref.url || '[URL]';
-      return (
-        <span>
-          {author} ({year}). <em>{title}</em>. {siteName}. {url}
-        </span>
-      );
-    } else if (ref.type === 'video') {
-      const channel = ref.channel || '[Canal]';
-      const videoUrl = ref.url || '[URL]';
-      return (
-        <span>
-          {author} ({year}). <em>{title}</em> [Video]. {channel}. {videoUrl}
-        </span>
-      );
-    } else {
-      return <span>Referencia incompleta</span>;
+    switch (ref.type) {
+      case 'book': {
+        const publisher = ref.publisher || '[Editorial]';
+        return (
+          <span>
+            {author} ({year}). <em>{title}</em>. {publisher}.
+          </span>
+        );
+      }
+      case 'article': {
+        const journal = ref.journal || '[Revista]';
+        const volume = ref.volume || '[Volumen]';
+        const issue = ref.issue ? `(${ref.issue})` : '';
+        const pages = ref.pages ? `, ${ref.pages}` : '';
+        const doi = ref.doi ? ` https://doi.org/${ref.doi}` : '';
+        return (
+          <span>
+            {author} ({year}). {title}. <em>{journal}</em>, <em>{volume}</em>{issue}{pages}.{doi}
+          </span>
+        );
+      }
+      case 'website': {
+        const siteName = ref.siteName || '[Nombre del Sitio]';
+        const url = ref.url || '[URL]';
+        return (
+          <span>
+            {author} ({year}). <em>{title}</em>. {siteName}. {url}
+          </span>
+        );
+      }
+      case 'video': {
+        const channel = ref.channel || '[Canal]';
+        const videoUrl = ref.url || '[URL]';
+        return (
+          <span>
+            {author} ({year}). <em>{title}</em> [Video]. {channel}. {videoUrl}
+          </span>
+        );
+      }
+      default:
+        return <span>Referencia incompleta</span>;
     }
   };
 
   return (
     <div className="flex flex-col h-full">
-      <button
-        onClick={addReference}
-        className="w-full flex justify-center items-center px-4 py-2 border-2 border-dashed border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 mb-4 transition-colors"
-      >
-        <Plus className="h-5 w-5 mr-2 text-gray-400" />
-        Agregar Referencia
-      </button>
+      <div className="flex gap-2 mb-4">
+        <button
+          onClick={addReference}
+          className="flex-1 flex justify-center items-center px-4 py-2 border-2 border-dashed border-gray-300 dark:border-gray-700 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 hover:border-gray-400 dark:hover:border-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+        >
+          <Plus className="h-5 w-5 mr-2 text-gray-400 dark:text-gray-500" />
+          Agregar Referencia
+        </button>
+        {references.length > 1 && (
+          <button
+            onClick={() => setIsSorted(!isSorted)}
+            className={`flex items-center px-3 py-2 text-sm rounded-md border transition-colors ${
+              isSorted
+                ? 'bg-blue-50 dark:bg-blue-950 border-blue-300 dark:border-blue-700 text-blue-700 dark:text-blue-300'
+                : 'border-gray-300 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800'
+            }`}
+            title="Ordenar A→Z por autor"
+          >
+            <ArrowUpDown className="h-4 w-4 mr-1.5" />
+            A→Z
+          </button>
+        )}
+      </div>
 
-      <div className="flex-1 overflow-y-auto pr-2 space-y-4">
+      {isSorted && (
+        <p className="text-xs text-blue-600 dark:text-blue-400 mb-3 text-center">
+          Mostrando el orden de exportación
+        </p>
+      )}
+
+      <div className="flex-1 overflow-y-auto pr-1 space-y-3">
         {references.length === 0 ? (
-          <div className="text-center py-8 text-gray-500 text-sm">
-            No hay referencias aún. Haz clic en el botón arriba para comenzar a agregar.
+          <div className="text-center py-12 text-gray-400 dark:text-gray-600">
+            <BookOpen className="h-10 w-10 mx-auto mb-3 opacity-50" />
+            <p className="text-sm">No hay referencias aún.</p>
+            <p className="text-xs mt-1">Hacé clic en el botón arriba para comenzar.</p>
           </div>
         ) : (
-          references.map((ref, index) => (
-            <div key={ref.id} className="border border-gray-200 rounded-md overflow-hidden bg-white shadow-sm">
-              <div 
-                className="flex justify-between items-center px-4 py-3 bg-gray-50 cursor-pointer hover:bg-gray-100 transition-colors"
-                onClick={() => setExpandedId(expandedId === ref.id ? null : ref.id)}
+          displayRefs.map((ref, index) => {
+            const isIncomplete = !ref.author.trim() || !ref.title.trim();
+            return (
+              <div
+                key={ref.id}
+                className={`border rounded-md overflow-hidden bg-white dark:bg-gray-900 shadow-sm ${
+                  isIncomplete
+                    ? 'border-amber-300 dark:border-amber-800'
+                    : 'border-gray-200 dark:border-gray-700'
+                }`}
               >
-                <div className="flex-1 truncate mr-4">
-                  <span className="font-medium text-sm text-gray-900 mr-2">#{index + 1}</span>
-                  <span className="text-sm text-gray-600 truncate">
-                    {ref.author ? `${ref.author} (${ref.year || '?'})` : 'Nueva referencia'}
-                  </span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <button
-                    onClick={(e) => { e.stopPropagation(); removeReference(ref.id); }}
-                    className="p-1 text-gray-400 hover:text-red-500 focus:outline-none rounded"
-                    title="Eliminar referencia"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
-                  {expandedId === ref.id ? (
-                    <ChevronUp className="h-5 w-5 text-gray-400" />
-                  ) : (
-                    <ChevronDown className="h-5 w-5 text-gray-400" />
-                  )}
-                </div>
-              </div>
-
-              {expandedId === ref.id && (
-                <div className="p-4 border-t border-gray-200 space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Tipo de Fuente</label>
-                    <select
-                      value={ref.type}
-                      onChange={(e) => updateReference(ref.id, 'type', e.target.value as ReferenceType)}
-                      className="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md border"
-                    >
-                      <option value="book">Libro</option>
-                      <option value="article">Artículo de Revista</option>
-                      <option value="website">Página Web</option>
-                      <option value="video">Video (YouTube, etc.)</option>
-                    </select>
+                <div
+                  className="flex justify-between items-center px-4 py-3 bg-gray-50 dark:bg-gray-800/50 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                  onClick={() => setExpandedId(expandedId === ref.id ? null : ref.id)}
+                >
+                  <div className="flex-1 truncate mr-2 min-w-0">
+                    <span className="font-medium text-sm text-gray-900 dark:text-gray-100 mr-2">
+                      #{index + 1}
+                    </span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">
+                      {ref.author ? `${ref.author} (${getYear(ref.year)})` : 'Nueva referencia'}
+                    </span>
+                    {isIncomplete && (
+                      <span className="ml-2 text-xs font-medium text-amber-600 dark:text-amber-400">
+                        Incompleta
+                      </span>
+                    )}
                   </div>
+                  <div className="flex items-center space-x-1 shrink-0">
+                    <button
+                      onClick={(e) => { e.stopPropagation(); handleCopy(ref); }}
+                      className="p-1.5 text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 focus:outline-none rounded transition-colors"
+                      title="Copiar referencia"
+                    >
+                      {copiedId === ref.id
+                        ? <Check className="h-4 w-4 text-green-500" />
+                        : <Copy className="h-4 w-4" />
+                      }
+                    </button>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); removeReference(ref.id); }}
+                      className="p-1.5 text-gray-400 hover:text-red-500 dark:hover:text-red-400 focus:outline-none rounded transition-colors"
+                      title="Eliminar referencia"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                    {expandedId === ref.id
+                      ? <ChevronUp className="h-5 w-5 text-gray-400 dark:text-gray-500" />
+                      : <ChevronDown className="h-5 w-5 text-gray-400 dark:text-gray-500" />
+                    }
+                  </div>
+                </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="sm:col-span-2">
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Autor(es) <span className="text-xs text-gray-500 font-normal">(Ej. Apellido, A., & Apellido, B.)</span></label>
-                      <input
-                        type="text"
-                        value={ref.author}
-                        onChange={(e) => updateReference(ref.id, 'author', e.target.value)}
-                        className="block w-full shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm border-gray-300 rounded-md border px-3 py-2"
-                        placeholder="Pérez, J."
-                      />
-                    </div>
-                    
+                {expandedId === ref.id && (
+                  <div className="p-4 border-t border-gray-200 dark:border-gray-700 space-y-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Año</label>
-                      <input
-                        type="text"
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Tipo de Fuente
+                      </label>
+                      <select
+                        value={ref.type}
+                        onChange={(e) => updateReference(ref.id, 'type', e.target.value as ReferenceType)}
+                        className="block w-full pl-3 pr-10 py-2 text-sm border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 rounded-md transition-colors"
+                      >
+                        <option value="book">Libro</option>
+                        <option value="article">Artículo de Revista</option>
+                        <option value="website">Página Web</option>
+                        <option value="video">Video (YouTube, etc.)</option>
+                      </select>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <Field
+                        label="Autor(es)"
+                        hint="(Ej. Apellido, A., & Apellido, B.)"
+                        value={ref.author}
+                        onChange={(v) => updateReference(ref.id, 'author', v)}
+                        placeholder="Pérez, J."
+                        colSpan
+                      />
+                      <Field
+                        label="Año"
                         value={ref.year}
-                        onChange={(e) => updateReference(ref.id, 'year', e.target.value)}
-                        className="block w-full shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm border-gray-300 rounded-md border px-3 py-2"
+                        onChange={(v) => updateReference(ref.id, 'year', v)}
                         placeholder="2023"
                       />
-                    </div>
-
-                    <div className="sm:col-span-2">
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Título</label>
-                      <input
-                        type="text"
+                      <Field
+                        label="Título"
                         value={ref.title}
-                        onChange={(e) => updateReference(ref.id, 'title', e.target.value)}
-                        className="block w-full shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm border-gray-300 rounded-md border px-3 py-2"
+                        onChange={(v) => updateReference(ref.id, 'title', v)}
                         placeholder="Título del trabajo"
+                        colSpan
                       />
-                    </div>
 
-                    {ref.type === 'book' && (
-                      <div className="sm:col-span-2">
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Editorial</label>
-                        <input
-                          type="text"
+                      {ref.type === 'book' && (
+                        <Field
+                          label="Editorial"
                           value={ref.publisher || ''}
-                          onChange={(e) => updateReference(ref.id, 'publisher', e.target.value)}
-                          className="block w-full shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm border-gray-300 rounded-md border px-3 py-2"
+                          onChange={(v) => updateReference(ref.id, 'publisher', v)}
                           placeholder="Nombre de la Editorial"
+                          colSpan
                         />
-                      </div>
-                    )}
+                      )}
 
-                    {ref.type === 'article' && (
-                      <>
-                        <div className="sm:col-span-2">
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Nombre de la Revista</label>
-                          <input
-                            type="text"
+                      {ref.type === 'article' && (
+                        <>
+                          <Field
+                            label="Nombre de la Revista"
                             value={ref.journal || ''}
-                            onChange={(e) => updateReference(ref.id, 'journal', e.target.value)}
-                            className="block w-full shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm border-gray-300 rounded-md border px-3 py-2"
+                            onChange={(v) => updateReference(ref.id, 'journal', v)}
                             placeholder="Revista de Psicología"
+                            colSpan
                           />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Volumen</label>
-                          <input
-                            type="text"
+                          <Field
+                            label="Volumen"
                             value={ref.volume || ''}
-                            onChange={(e) => updateReference(ref.id, 'volume', e.target.value)}
-                            className="block w-full shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm border-gray-300 rounded-md border px-3 py-2"
+                            onChange={(v) => updateReference(ref.id, 'volume', v)}
                             placeholder="12"
                           />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Número (Issue)</label>
-                          <input
-                            type="text"
+                          <Field
+                            label="Número (Issue)"
                             value={ref.issue || ''}
-                            onChange={(e) => updateReference(ref.id, 'issue', e.target.value)}
-                            className="block w-full shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm border-gray-300 rounded-md border px-3 py-2"
+                            onChange={(v) => updateReference(ref.id, 'issue', v)}
                             placeholder="4"
                           />
-                        </div>
-                        <div className="sm:col-span-2">
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Páginas</label>
-                          <input
-                            type="text"
+                          <Field
+                            label="Páginas"
                             value={ref.pages || ''}
-                            onChange={(e) => updateReference(ref.id, 'pages', e.target.value)}
-                            className="block w-full shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm border-gray-300 rounded-md border px-3 py-2"
+                            onChange={(v) => updateReference(ref.id, 'pages', v)}
                             placeholder="123-145"
+                            colSpan
                           />
-                        </div>
-                      </>
-                    )}
+                          <Field
+                            label="DOI"
+                            hint="sin el prefijo https://doi.org/"
+                            value={ref.doi || ''}
+                            onChange={(v) => updateReference(ref.id, 'doi', v)}
+                            placeholder="10.1016/j.ejemplo.2024.01.001"
+                            colSpan
+                          />
+                        </>
+                      )}
 
-                    {(ref.type === 'website' || ref.type === 'video') && (
-                      <div className="sm:col-span-2">
-                        <label className="block text-sm font-medium text-gray-700 mb-1">URL</label>
-                        <input
-                          type="text"
+                      {(ref.type === 'website' || ref.type === 'video') && (
+                        <Field
+                          label="URL"
                           value={ref.url || ''}
-                          onChange={(e) => updateReference(ref.id, 'url', e.target.value)}
-                          className="block w-full shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm border-gray-300 rounded-md border px-3 py-2"
+                          onChange={(v) => updateReference(ref.id, 'url', v)}
                           placeholder="https://..."
+                          colSpan
                         />
-                      </div>
-                    )}
+                      )}
 
-                    {ref.type === 'website' && (
-                      <div className="sm:col-span-2">
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Nombre del Sitio Web</label>
-                        <input
-                          type="text"
+                      {ref.type === 'website' && (
+                        <Field
+                          label="Nombre del Sitio Web"
                           value={ref.siteName || ''}
-                          onChange={(e) => updateReference(ref.id, 'siteName', e.target.value)}
-                          className="block w-full shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm border-gray-300 rounded-md border px-3 py-2"
+                          onChange={(v) => updateReference(ref.id, 'siteName', v)}
                           placeholder="Wikipedia, OMS, etc."
+                          colSpan
                         />
-                      </div>
-                    )}
+                      )}
 
-                    {ref.type === 'video' && (
-                      <div className="sm:col-span-2">
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Canal o Autor del Video</label>
-                        <input
-                          type="text"
+                      {ref.type === 'video' && (
+                        <Field
+                          label="Canal o Autor del Video"
                           value={ref.channel || ''}
-                          onChange={(e) => updateReference(ref.id, 'channel', e.target.value)}
-                          className="block w-full shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm border-gray-300 rounded-md border px-3 py-2"
+                          onChange={(v) => updateReference(ref.id, 'channel', v)}
                           placeholder="Nombre del canal de YouTube"
+                          colSpan
                         />
-                      </div>
-                    )}
-                  </div>
+                      )}
+                    </div>
 
-                  {/* Preview Box */}
-                  <div className="mt-4 p-3 bg-blue-50 border border-blue-100 rounded-md">
-                    <p className="text-xs font-semibold text-blue-800 uppercase tracking-wider mb-1">Vista previa APA</p>
-                    <p className="text-sm text-gray-800 font-serif" style={{ paddingLeft: '2em', textIndent: '-2em' }}>
-                      {generatePreview(ref)}
-                    </p>
+                    <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-950/50 border border-blue-100 dark:border-blue-900 rounded-md">
+                      <p className="text-xs font-semibold text-blue-800 dark:text-blue-300 uppercase tracking-wider mb-1">
+                        Vista previa APA
+                      </p>
+                      <p
+                        className="text-sm text-gray-800 dark:text-gray-200 font-serif"
+                        style={{ paddingLeft: '2em', textIndent: '-2em' }}
+                      >
+                        {generatePreview(ref)}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              )}
-            </div>
-          ))
+                )}
+              </div>
+            );
+          })
         )}
       </div>
     </div>
