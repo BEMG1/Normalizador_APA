@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useReferences } from '@/context/AppContext';
 import {
   Plus, Trash2, ChevronDown, ChevronUp,
   BookOpen, Copy, Check, ArrowUpDown,
@@ -24,6 +25,26 @@ export interface Reference {
 }
 
 export const getYear = (year: string): string => year.trim() || 's.f.';
+
+export const getYearError = (year: string): string | undefined => {
+  const trimmed = year.trim();
+  if (!trimmed) return undefined;
+  // Match 4-digit years or "s.f.", optionally followed by date details in APA format
+  const regex = /^(?:([12]\d{3})|s\.?\s*f\.?)(?:,.*)?$/i;
+  const match = trimmed.match(regex);
+  if (!match) {
+    return 'Formato no válido (ej. 2023 o s.f.)';
+  }
+  const yearStr = match[1];
+  if (yearStr) {
+    const yearVal = parseInt(yearStr, 10);
+    const currentYear = new Date().getFullYear();
+    if (yearVal > currentYear) {
+      return `El año no puede ser superior al actual (${currentYear})`;
+    }
+  }
+  return undefined;
+};
 
 export const getReferenceText = (ref: Reference): string => {
   const author = ref.author || '[Autor]';
@@ -60,9 +81,10 @@ interface FieldProps {
   onChange: (v: string) => void;
   placeholder?: string;
   colSpan?: boolean;
+  error?: string;
 }
 
-const Field: React.FC<FieldProps> = ({ label, hint, value, onChange, placeholder, colSpan }) => (
+const Field: React.FC<FieldProps> = ({ label, hint, value, onChange, placeholder, colSpan, error }) => (
   <div className={colSpan ? 'sm:col-span-2' : ''}>
     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
       {label}
@@ -74,18 +96,23 @@ const Field: React.FC<FieldProps> = ({ label, hint, value, onChange, placeholder
       type="text"
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className="block w-full sm:text-sm border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+      className={`block w-full sm:text-sm border rounded-md px-3 py-2 outline-none transition-colors ${
+        error
+          ? 'border-red-300 dark:border-red-800 focus:ring-2 focus:ring-red-500 focus:border-red-500 bg-red-50/10 dark:bg-red-950/10 text-gray-900 dark:text-gray-100'
+          : 'border-gray-300 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100'
+      }`}
       placeholder={placeholder}
     />
+    {error && (
+      <p className="mt-1 text-xs text-red-600 dark:text-red-400 font-medium animate-pulse">
+        {error}
+      </p>
+    )}
   </div>
 );
 
-interface ReferencesManagerProps {
-  references: Reference[];
-  setReferences: (refs: Reference[] | ((prev: Reference[]) => Reference[])) => void;
-}
-
-const ReferencesManager: React.FC<ReferencesManagerProps> = ({ references, setReferences }) => {
+const ReferencesManager: React.FC = () => {
+  const { references, setReferences } = useReferences();
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [isSorted, setIsSorted] = useState(false);
@@ -297,6 +324,7 @@ const ReferencesManager: React.FC<ReferencesManagerProps> = ({ references, setRe
                         value={ref.year}
                         onChange={(v) => updateReference(ref.id, 'year', v)}
                         placeholder="2023"
+                        error={getYearError(ref.year)}
                       />
                       <Field
                         label="Título"

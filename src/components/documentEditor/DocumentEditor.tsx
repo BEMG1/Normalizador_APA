@@ -1,15 +1,16 @@
 import { useRef, useState } from 'react';
 import mammoth from 'mammoth';
 import { Upload, Trash2 } from 'lucide-react';
+import { useDocument } from '@/context/AppContext';
 
 type FormatType = 'h1' | 'h2' | 'h3' | 'p';
 
-interface DocumentEditorProps {
-  text: string;
-  setText: (text: string) => void;
-}
-
-const DocumentEditor: React.FC<DocumentEditorProps> = ({ text, setText }) => {
+const DocumentEditor: React.FC = () => {
+  const {
+    documentText: text,
+    setDocumentText: setText,
+    setUploadedFileName: onFileNameChange,
+  } = useDocument();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -83,6 +84,8 @@ const DocumentEditor: React.FC<DocumentEditorProps> = ({ text, setText }) => {
         }
       });
       setText(lines.join('\n\n'));
+      const baseName = file.name.slice(0, -5); // remove '.docx'
+      onFileNameChange?.(baseName);
     } catch (error) {
       console.error('Error extracting text from Word document', error);
       alert('Hubo un error al leer el documento de Word.');
@@ -108,7 +111,10 @@ const DocumentEditor: React.FC<DocumentEditorProps> = ({ text, setText }) => {
   };
 
   const handleClear = () => {
-    if (confirm('¿Borrar todo el texto del documento?')) setText('');
+    if (confirm('¿Borrar todo el texto del documento?')) {
+      setText('');
+      onFileNameChange?.(null);
+    }
   };
 
   // --- Toolbar helpers ---
