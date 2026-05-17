@@ -1,0 +1,46 @@
+import React, { createContext, useContext, type ReactNode } from "react";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
+
+interface DocumentContextType {
+  documentText: string;
+  setDocumentText: React.Dispatch<React.SetStateAction<string>>;
+  uploadedFileName: string | null;
+  setUploadedFileName: React.Dispatch<React.SetStateAction<string | null>>;
+  isExportDisabled: boolean;
+}
+
+const DocumentContext = createContext<DocumentContextType | undefined>(undefined);
+
+export const DocumentProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const [documentText, setDocumentText] = useLocalStorage<string>("documentText", "");
+  const [uploadedFileName, setUploadedFileName] = useLocalStorage<string | null>(
+    "uploadedFileName",
+    null,
+  );
+
+  const isExportDisabled = !documentText.trim();
+
+  return (
+    <DocumentContext.Provider
+      value={{
+        documentText,
+        setDocumentText,
+        uploadedFileName,
+        setUploadedFileName,
+        isExportDisabled,
+      }}
+    >
+      {children}
+    </DocumentContext.Provider>
+  );
+};
+
+export const useDocument = () => {
+  const context = useContext(DocumentContext);
+  if (context === undefined) {
+    throw new Error("useDocument must be used within a DocumentProvider");
+  }
+  return context;
+};
+
+export default DocumentProvider;
