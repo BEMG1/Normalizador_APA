@@ -14,3 +14,152 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+/* Custom UI Scrollbar (scrollbar-thin) */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 8px;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: #cbd5e1; /* Tailwind slate-300 */
+  border-radius: 8px;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8; /* Tailwind slate-400 */
+}
+
+/* Dark mode support for scrollbar */
+.dark .scrollbar-thin::-webkit-scrollbar-thumb {
+  background: #475569; /* Tailwind slate-600 */
+}
+.dark .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: #64748b; /* Tailwind slate-500 */
+}
+
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}
+
+.dark .scrollbar-thin {
+  scrollbar-color: #475569 transparent;
+}
+
+/* 
+  Theme "Dani": 
+  - Soft pinks instead of blues.
+  - Rose tint instead of neutral grays.
+  - Exaggerated border radius for a feminine/soft look.
+*/
+.theme-dani {
+  /* Primary color override (Blue -> Pink) */
+  --color-blue-50: #fdf2f8;
+  --color-blue-100: #fce7f3;
+  --color-blue-200: #fbcfe8;
+  --color-blue-300: #f9a8d4;
+  --color-blue-400: #f472b6;
+  --color-blue-500: #ec4899;
+  --color-blue-600: #db2777;
+  --color-blue-700: #be185d;
+  --color-blue-800: #9d174d;
+  --color-blue-900: #831843;
+  --color-blue-950: #500724;
+
+  /* Neutral color override (Gray -> Rose/Warm) */
+  --color-gray-50: #fff1f2;
+  --color-gray-100: #ffe4e6;
+  --color-gray-200: #fecdd3;
+  --color-gray-300: #fda4af;
+  --color-gray-400: #fb7185;
+  --color-gray-500: #f43f5e;
+  --color-gray-600: #e11d48;
+  --color-gray-700: #be123c;
+  --color-gray-800: #9f1239;
+  --color-gray-900: #881337;
+  --color-gray-950: #4c0519;
+
+  /* Border radius override (Rounded, delicate appearance) */
+  --radius-xs: 0.5rem;
+  --radius-sm: 0.75rem;
+  --radius-md: 1rem;
+  --radius-lg: 1.5rem;
+  --radius-xl: 2rem;
+  --radius-2xl: 2.5rem;
+  --radius-3xl: 3rem;
+  
+  /* Softer shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(225, 29, 72, 0.05);
+  --shadow: 0 4px 6px -1px rgba(225, 29, 72, 0.1), 0 2px 4px -2px rgba(225, 29, 72, 0.1);
+  --shadow-md: 0 10px 15px -3px rgba(225, 29, 72, 0.1), 0 4px 6px -4px rgba(225, 29, 72, 0.1);
+
+  /* Dog Paw Cursor (Image) */
+  cursor: url('/Normalizador_APA/images/paw.png'), auto;
+}
+
+/* Dog paw cursor for clickable elements */
+.theme-dani a, 
+.theme-dani button, 
+.theme-dani [role="button"], 
+.theme-dani input[type="submit"], 
+.theme-dani input[type="button"], 
+.theme-dani input[type="checkbox"], 
+.theme-dani input[type="radio"], 
+.theme-dani select, 
+.theme-dani label {
+  cursor: url('/Normalizador_APA/images/paw.png'), pointer;
+}
+
+/* Editor (ProseMirror) APA Styling */
+.ProseMirror {
+  padding: 2rem;
+  outline: none;
+  min-height: 500px;
+}
+.ProseMirror h1 {
+  text-align: center;
+  font-weight: bold;
+  font-size: 1.125rem;
+  margin-top: 1.5em;
+  margin-bottom: 1em;
+  color: inherit;
+}
+.ProseMirror h2 {
+  text-align: left;
+  font-weight: bold;
+  font-size: 1.125rem;
+  margin-top: 1.5em;
+  margin-bottom: 1em;
+  color: inherit;
+}
+.ProseMirror h3 {
+  text-align: left;
+  font-weight: bold;
+  font-style: italic;
+  font-size: 1.125rem;
+  margin-top: 1.5em;
+  margin-bottom: 1em;
+  color: inherit;
+}
+.ProseMirror p {
+  text-indent: 1.27cm;
+  text-align: justify;
+  margin-bottom: 1em;
+  line-height: 2;
+}
+
+.theme-dani .scrollbar-thin::-webkit-scrollbar-thumb {
+  background: #f9a8d4; /* pink-300 */
+}
+.theme-dani .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: #f472b6; /* pink-400 */
+}
+.theme-dani.dark .scrollbar-thin::-webkit-scrollbar-thumb {
+  background: #be123c; /* rose-700 */
+}
+.theme-dani.dark .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: #9f1239; /* rose-800 */
+}
