@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { useReferences } from '@/context/AppContext';
+import { useReferences, useCitationFormat } from '@/context/AppContext';
+import { FORMAT_CONFIGS } from '@/utils/citationFormats';
 import {
   Plus, Trash2, ChevronDown, ChevronUp,
   BookOpen, Copy, Check, ArrowUpDown,
@@ -47,15 +48,19 @@ export const getYearError = (year: string): string | undefined => {
   return undefined;
 };
 
+/**
+ * Returns a plain-text reference using the *default* APA 7 formatter.
+ * Used in docxExport as a safe fallback and in legacy call sites.
+ * For format-aware rendering, prefer `useCitationFormat().formatter.formatReference(ref)`.
+ */
 export const getReferenceText = (ref: Reference): string => {
   const author = ref.author || '[Autor]';
   const year = getYear(ref.year);
   const title = ref.title || '[Título]';
 
   switch (ref.type) {
-    case 'book': {
+    case 'book':
       return `${author} (${year}). ${title}. ${ref.publisher || '[Editorial]'}.`;
-    }
     case 'article': {
       const journal = ref.journal || '[Revista]';
       const volume = ref.volume || '[Volumen]';
@@ -64,12 +69,10 @@ export const getReferenceText = (ref: Reference): string => {
       const doi = ref.doi ? ` https://doi.org/${ref.doi}` : '';
       return `${author} (${year}). ${title}. ${journal}, ${volume}${issue}${pages}.${doi}`;
     }
-    case 'website': {
+    case 'website':
       return `${author} (${year}). ${title}. ${ref.siteName || '[Nombre del Sitio]'}. ${ref.url || '[URL]'}`;
-    }
-    case 'video': {
+    case 'video':
       return `${author} (${year}). ${title} [Video]. ${ref.channel || '[Canal]'}. ${ref.url || '[URL]'}`;
-    }
     default:
       return 'Referencia incompleta';
   }
@@ -114,6 +117,7 @@ const Field: React.FC<FieldProps> = ({ label, hint, value, onChange, placeholder
 
 const ReferencesManager: React.FC = () => {
   const { references, setReferences } = useReferences();
+  const { citationFormat, formatter } = useCitationFormat();
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [isSorted, setIsSorted] = useState(false);
@@ -142,63 +146,16 @@ const ReferencesManager: React.FC = () => {
   };
 
   const handleCopy = async (ref: Reference) => {
-    await navigator.clipboard.writeText(getReferenceText(ref));
+    await navigator.clipboard.writeText(formatter.formatReference(ref));
     setCopiedId(ref.id);
     setTimeout(() => setCopiedId(null), 2000);
   };
 
-  const displayRefs = isSorted
-    ? [...references].sort((a, b) => a.author.localeCompare(b.author, 'es'))
-    : references;
-
-  const generatePreview = (ref: Reference) => {
-    const author = ref.author || '[Autor]';
-    const year = getYear(ref.year);
-    const title = ref.title || '[Título]';
-
-    switch (ref.type) {
-      case 'book': {
-        const publisher = ref.publisher || '[Editorial]';
-        return (
-          <span>
-            {author} ({year}). <em>{title}</em>. {publisher}.
-          </span>
-        );
-      }
-      case 'article': {
-        const journal = ref.journal || '[Revista]';
-        const volume = ref.volume || '[Volumen]';
-        const issue = ref.issue ? `(${ref.issue})` : '';
-        const pages = ref.pages ? `, ${ref.pages}` : '';
-        const doi = ref.doi ? ` https://doi.org/${ref.doi}` : '';
-        return (
-          <span>
-            {author} ({year}). {title}. <em>{journal}</em>, <em>{volume}</em>{issue}{pages}.{doi}
-          </span>
-        );
-      }
-      case 'website': {
-        const siteName = ref.siteName || '[Nombre del Sitio]';
-        const url = ref.url || '[URL]';
-        return (
-          <span>
-            {author} ({year}). <em>{title}</em>. {siteName}. {url}
-          </span>
-        );
-      }
-      case 'video': {
-        const channel = ref.channel || '[Canal]';
-        const videoUrl = ref.url || '[URL]';
-        return (
-          <span>
-            {author} ({year}). <em>{title}</em> [Video]. {channel}. {videoUrl}
-          </span>
-        );
-      }
-      default:
-        return <span>Referencia incompleta</span>;
-    }
-  };
+  // Sort: alphabetical for APA, keep insertion order for IEEE
+  const displayRefs =
+    isSorted && formatter.sortMode === 'alphabetical'
+      ? [...references].sort((a, b) => a.author.localeCompare(b.author, 'es'))
+      : references;
 
   return (
     <div className="flex flex-col h-full">
@@ -435,13 +392,13 @@ const ReferencesManager: React.FC = () => {
 
                     <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-950/50 border border-blue-100 dark:border-blue-900 rounded-md">
                       <p className="text-xs font-semibold text-blue-800 dark:text-blue-300 uppercase tracking-wider mb-1">
-                        Vista previa APA
+                        Vista previa · {FORMAT_CONFIGS[citationFormat].label}
                       </p>
                       <p
                         className="text-sm text-gray-800 dark:text-gray-200 font-serif"
                         style={{ paddingLeft: '2em', textIndent: '-2em' }}
                       >
-                        {generatePreview(ref)}
+                        {formatter.formatReferenceJSX(ref)}
                       </p>
                     </div>
                   </div>

@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, type ReactNode } from "react";
 import { useDocument } from "./DocumentContext";
 import { useReferences } from "./ReferencesContext";
+import { useCitationFormat } from "./CitationFormatContext";
 import { exportToDocx } from "@/utils/docxExport";
 
 interface ExportContextType {
@@ -15,6 +16,7 @@ const ExportContext = createContext<ExportContextType | undefined>(undefined);
 export const ExportProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const { documentText, uploadedFileName } = useDocument();
   const { references } = useReferences();
+  const { formatter } = useCitationFormat();
   const [showExportWarning, setShowExportWarning] = useState(false);
 
   const handleExportClick = () => {
@@ -27,7 +29,7 @@ export const ExportProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       const suggestedName = uploadedFileName
         ? `${uploadedFileName}_Normalizate_APA`
         : "File_Normalizate_APA";
-      exportToDocx(documentText, references, suggestedName);
+      exportToDocx(documentText, references, suggestedName, formatter);
     }
   };
 
@@ -36,7 +38,7 @@ export const ExportProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     const suggestedName = uploadedFileName
       ? `${uploadedFileName}_Normalizate_APA`
       : "File_Normalizate_APA";
-    await exportToDocx(documentText, references, suggestedName);
+    await exportToDocx(documentText, references, suggestedName, formatter);
   };
 
   return (
@@ -62,3 +64,4 @@ export const useExport = () => {
 };
 
 export default ExportProvider;
+
