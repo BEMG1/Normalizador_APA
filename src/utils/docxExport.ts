@@ -86,39 +86,152 @@ export const exportToDocx = async (
     a.author.localeCompare(b.author, "es"),
   );
 
-  const parseLine = (line: string): Paragraph => {
-    if (line.startsWith("### ")) {
-      return new Paragraph({
-        children: [new TextRun({ text: line.slice(4), bold: true })],
-        heading: HeadingLevel.HEADING_3,
-        spacing: { line: 480 },
-      });
+  interface ParsedRun {
+    text: string;
+    bold?: boolean;
+    italics?: boolean;
+    highlighted?: boolean;
+  }
+
+  const getInTextCitation = (ref: Reference): string => {
+    if (!ref) return "";
+    const authorStr = ref.author?.trim() || "Autor desconocido";
+    const year = getYear(ref.year);
+
+    const formatSingleAuthor = (name: string): string => {
+      const parts = name.split(',');
+      if (parts.length > 1) {
+        return parts[0].trim();
+      }
+      return name.trim();
+    };
+
+    const authors = authorStr.split(/;| & | and | y /i).map(a => a.trim()).filter(Boolean);
+    let formattedAuthors = "";
+    if (authors.length === 1) {
+      formattedAuthors = formatSingleAuthor(authors[0]);
+    } else if (authors.length === 2) {
+      formattedAuthors = `${formatSingleAuthor(authors[0])} & ${formatSingleAuthor(authors[1])}`;
+    } else if (authors.length >= 3) {
+      formattedAuthors = `${formatSingleAuthor(authors[0])} et al.`;
+    } else {
+      formattedAuthors = authorStr;
     }
-    if (line.startsWith("## ")) {
-      return new Paragraph({
-        children: [new TextRun({ text: line.slice(3), bold: true })],
-        heading: HeadingLevel.HEADING_2,
-        spacing: { line: 480 },
-      });
+
+    return ` (${formattedAuthors}, ${year})`;
+  };
+
+  const parseHtmlNode = (node: Node): ParsedRun[] => {
+    if (node.nodeType === Node.TEXT_NODE) {
+      return [{ text: node.textContent || "" }];
     }
-    if (line.startsWith("# ")) {
+    if (node.nodeType === Node.ELEMENT_NODE) {
+      const el = node as Element;
+      // Recurse for nested elements (like strong inside mark)
+      const childrenRuns = Array.from(node.childNodes).flatMap(parseHtmlNode);
+      if (childrenRuns.length === 0 && !el.textContent) return [];
+
+      let updatedRuns = childrenRuns;
+      if (el.tagName === 'STRONG' || el.tagName === 'B') {
+        updatedRuns = updatedRuns.map(r => ({ ...r, bold: true }));
+      }
+      if (el.tagName === 'EM' || el.tagName === 'I') {
+        updatedRuns = updatedRuns.map(r => ({ ...r, italics: true }));
+      }
+      if (el.tagName === 'MARK' || el.hasAttribute('data-reference-id')) {
+        const refId = el.getAttribute('data-reference-id');
+        const ref = references.find(r => r.id === refId);
+        updatedRuns = updatedRuns.map(r => ({ ...r, highlighted: true }));
+        if (ref) {
+          const citationText = getInTextCitation(ref);
+          if (citationText) {
+            updatedRuns.push({ text: citationText, highlighted: false });
+          }
+        }
+      }
+      return updatedRuns;
+    }
+    return [];
+  };
+
+  const parseHtmlBlock = (element: Element): Paragraph | null => {
+    const tagName = element.tagName.toUpperCase();
+    const childrenNodes = Array.from(element.childNodes).flatMap(parseHtmlNode);
+    
+    if (childrenNodes.length === 0) return null;
+
+    if (tagName === 'H1') {
       return new Paragraph({
-        children: [new TextRun({ text: line.slice(2), bold: true })],
+        children: childrenNodes.map(r => new TextRun({
+          text: r.text,
+          bold: true,          
+        })),
         heading: HeadingLevel.HEADING_1,
+        alignment: AlignmentType.CENTER,
+        spacing: { line: 480 },
+      });
+    }
+    if (tagName === 'H2') {
+      return new Paragraph({
+        children: childrenNodes.map(r => new TextRun({
+          text: r.text,
+          bold: true,          
+        })),
+        heading: HeadingLevel.HEADING_2,
+        alignment: AlignmentType.LEFT,
+        spacing: { line: 480 },
+      });
+    }
+    if (tagName === 'H3') {
+      return new Paragraph({
+        children: childrenNodes.map(r => new TextRun({
+          text: r.text,
+          bold: true,
+          italics: true,
+        })),
+        heading: HeadingLevel.HEADING_3,
+        alignment: AlignmentType.LEFT,
+        spacing: { line: 480 },
+      });
+    }
+    if (tagName === 'P') {
+      return new Paragraph({
+        children: childrenNodes.map(r => new TextRun({
+          text: r.text,
+          bold: r.bold,
+          italics: r.italics,          
+        })),
+        alignment: AlignmentType.JUSTIFIED,
+        indent: { firstLine: convertInchesToTwip(0.5) },
         spacing: { line: 480 },
       });
     }
     return new Paragraph({
-      children: [new TextRun({ text: line })],
-      indent: { firstLine: convertInchesToTwip(0.5) },
+      children: childrenNodes.map(r => new TextRun({
+        text: r.text,
+        bold: r.bold,
+        italics: r.italics,        
+      })),
+      alignment: AlignmentType.JUSTIFIED,
       spacing: { line: 480 },
     });
   };
 
-  const paragraphs = text
-    .split("\n")
-    .filter((p) => p.trim() !== "")
-    .map(parseLine);
+  const htmlDoc = new DOMParser().parseFromString(text, 'text/html');
+  const paragraphs: Paragraph[] = [];
+  htmlDoc.body.childNodes.forEach((node) => {
+    if (node.nodeType === Node.ELEMENT_NODE) {
+      const p = parseHtmlBlock(node as Element);
+      if (p) paragraphs.push(p);
+    } else if (node.nodeType === Node.TEXT_NODE && node.textContent?.trim()) {
+      paragraphs.push(new Paragraph({
+        children: [new TextRun({ text: node.textContent.trim() })],
+        alignment: AlignmentType.JUSTIFIED,
+        indent: { firstLine: convertInchesToTwip(0.5) },
+        spacing: { line: 480 },
+      }));
+    }
+  });
 
   const doc = new Document({
     styles: {
@@ -130,6 +243,57 @@ export const exportToDocx = async (
           },
         },
       },
+      paragraphStyles: [
+        {
+          id: "Heading1",
+          name: "Heading 1",
+          basedOn: "Normal",
+          next: "Normal",
+          quickFormat: true,
+          run: {
+            bold: true,
+            size: 24,
+            color: "000000",
+          },
+          paragraph: {
+            alignment: AlignmentType.CENTER,
+            spacing: { before: 240, after: 240, line: 480 },
+          },
+        },
+        {
+          id: "Heading2",
+          name: "Heading 2",
+          basedOn: "Normal",
+          next: "Normal",
+          quickFormat: true,
+          run: {
+            bold: true,
+            size: 24,
+            color: "000000",
+          },
+          paragraph: {
+            alignment: AlignmentType.LEFT,
+            spacing: { before: 240, after: 240, line: 480 },
+          },
+        },
+        {
+          id: "Heading3",
+          name: "Heading 3",
+          basedOn: "Normal",
+          next: "Normal",
+          quickFormat: true,
+          run: {
+            bold: true,
+            italics: true,
+            size: 24,
+            color: "000000",
+          },
+          paragraph: {
+            alignment: AlignmentType.LEFT,
+            spacing: { before: 240, after: 240, line: 480 },
+          },
+        },
+      ],
     },
     sections: [
       {

@@ -4,6 +4,7 @@ import DocumentEditor from "@/components/documentEditor/DocumentEditor";
 import ReferencesManager from "@/components/References/ReferencesManager";
 import ExportWarningModal from "@/components/documentEditor/ExportWarningModal";
 import { FileText, BookOpen } from "lucide-react";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 function AppContent() {
   return (
@@ -44,7 +45,9 @@ function AppContent() {
 function App() {
   return (
     <AppProviders>
-      <AppContent />
+      <TooltipProvider delayDuration={300}>
+        <AppContent />
+      </TooltipProvider>
     </AppProviders>
   );
 }

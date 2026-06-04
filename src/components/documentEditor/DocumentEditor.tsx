@@ -1,62 +1,148 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import mammoth from 'mammoth';
-import { Upload, Trash2 } from 'lucide-react';
-import { useDocument } from '@/context/AppContext';
-
-type FormatType = 'h1' | 'h2' | 'h3' | 'p';
-
+import { Upload, Trash2, Link as LinkIcon, Unlink, ChevronDown, BookOpen } from 'lucide-react';
+import { useDocument, useReferences } from '@/context/AppContext';
+import { useEditor, EditorContent } from '@tiptap/react';
+import { BubbleMenu } from '@tiptap/react/menus';
+import StarterKit from '@tiptap/starter-kit';
+import { ReferenceMark } from './ReferenceMark';
+import { getReferenceText, type Reference, getYear } from '@/components/References/ReferencesManager';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 const DocumentEditor: React.FC = () => {
   const {
     documentText: text,
     setDocumentText: setText,
     setUploadedFileName: onFileNameChange,
   } = useDocument();
+  const { references } = useReferences();
+  
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const editorContainerRef = useRef<HTMLDivElement>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
-  const [activeFormat, setActiveFormat] = useState<FormatType>('p');
 
-  // --- Format detection & application ---
+  // Tooltip state
+  const [hoverInfo, setHoverInfo] = useState<{ ref: Reference; x: number; y: number } | null>(null);
+  
+  // Custom dropdown state for BubbleMenu
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const detectFormat = (pos: number): FormatType => {
-    const lineStart = text.lastIndexOf('\n', pos - 1) + 1;
-    const line = text.slice(lineStart);
-    if (line.startsWith('### ')) return 'h3';
-    if (line.startsWith('## ')) return 'h2';
-    if (line.startsWith('# ')) return 'h1';
-    return 'p';
-  };
+  const editor = useEditor({
+    extensions: [
+      StarterKit.configure({
+        heading: {
+          levels: [1, 2, 3],
+        },
+      }),
+      ReferenceMark,
+    ],
+    content: text,
+    onUpdate: ({ editor }) => {
+      setText(editor.getHTML());
+    },
+    editorProps: {
+      attributes: {
+        class: 'prose prose-sm sm:prose lg:prose-lg xl:prose-2xl mx-auto focus:outline-none min-h-[400px] p-4 text-gray-900 dark:text-gray-100 font-serif',
+      },
+    },
+  });
 
-  const handleCursorChange = () => {
-    const ta = textareaRef.current;
-    if (!ta) return;
-    setActiveFormat(detectFormat(ta.selectionStart));
-  };
+  // Handle hover tooltips
+  useEffect(() => {
+    if (!editorContainerRef.current) return;
+    
+    const handleMouseOver = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      const refMark = target.closest('[data-reference-id]');
+      if (refMark) {
+        const id = refMark.getAttribute('data-reference-id');
+        const reference = references.find((r) => r.id === id);
+        if (reference) {
+          setHoverInfo({
+            ref: reference,
+            x: e.clientX,
+            y: e.clientY,
+          });
+          return;
+        }
+      }
+      setHoverInfo(null);
+    };
 
-  const applyFormat = (format: FormatType) => {
-    const ta = textareaRef.current;
-    if (!ta) return;
+    const el = editorContainerRef.current;
+    el.addEventListener('mousemove', handleMouseOver);
+    // Remove tooltip when mouse leaves the editor container
+    const handleMouseLeave = () => setHoverInfo(null);
+    el.addEventListener('mouseleave', handleMouseLeave);
 
-    const pos = ta.selectionStart;
-    const lineStart = text.lastIndexOf('\n', pos - 1) + 1;
-    const lineEnd = text.indexOf('\n', pos);
-    const end = lineEnd === -1 ? text.length : lineEnd;
+    return () => {
+      el.removeEventListener('mousemove', handleMouseOver);
+      el.removeEventListener('mouseleave', handleMouseLeave);
+    };
+  }, [references]);
 
-    const currentLine = text.slice(lineStart, end);
-    const stripped = currentLine.replace(/^#{1,3} /, '');
-    const prefixes: Record<FormatType, string> = { h1: '# ', h2: '## ', h3: '### ', p: '' };
-    const newLine = prefixes[format] + stripped;
+  // Clean up orphaned reference marks when references are deleted from the manager
+  useEffect(() => {
+    if (!editor) return;
 
-    setText(text.slice(0, lineStart) + newLine + text.slice(end));
-    setActiveFormat(format);
+    const currentRefIds = new Set(references.map((r) => r.id));
+    const { tr } = editor.state;
+    let hasChanges = false;
 
-    const newPos = Math.max(lineStart, pos + (newLine.length - currentLine.length));
-    setTimeout(() => {
-      ta.focus();
-      ta.setSelectionRange(newPos, newPos);
-    }, 0);
-  };
+    editor.state.doc.descendants((node, pos) => {
+      if (node.marks && node.marks.length > 0) {
+        node.marks.forEach((mark) => {
+          if (mark.type.name === 'reference') {
+            const id = mark.attrs.id;
+            if (id && !currentRefIds.has(id)) {
+              tr.removeMark(pos, pos + node.nodeSize, mark);
+              hasChanges = true;
+            }
+          }
+        });
+      }
+    });
+
+    if (hasChanges) {
+      editor.view.dispatch(tr);
+    }
+  }, [references, editor]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (isDropdownOpen && dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isDropdownOpen]);
+
+  // Close dropdown when selection changes
+  useEffect(() => {
+    if (!editor) return;
+    const handleSelectionUpdate = () => {
+      setIsDropdownOpen(false);
+    };
+    editor.on('selectionUpdate', handleSelectionUpdate);
+    return () => {
+      editor.off('selectionUpdate', handleSelectionUpdate);
+    };
+  }, [editor]);
+
+  // Handle external text updates (like from localStorage on load)
+  useEffect(() => {
+    if (editor && text && editor.getHTML() !== text) {
+      // Only set content if the editor is empty or on initial load to avoid jumping cursor
+      if (editor.isEmpty) {
+        editor.commands.setContent(text);
+      }
+    }
+  }, [editor, text]);
 
   // --- File handling ---
 
@@ -68,22 +154,14 @@ const DocumentEditor: React.FC = () => {
     setIsLoading(true);
     try {
       const arrayBuffer = await file.arrayBuffer();
+      // Mammoth converts DOCX to HTML
       const result = await mammoth.convertToHtml({ arrayBuffer });
-      const doc = new DOMParser().parseFromString(result.value, 'text/html');
-      const lines: string[] = [];
-      doc.body.childNodes.forEach((node) => {
-        if (node.nodeType !== Node.ELEMENT_NODE) return;
-        const el = node as Element;
-        const text = el.textContent?.trim() || '';
-        if (!text) return;
-        switch (el.tagName.toLowerCase()) {
-          case 'h1': lines.push(`# ${text}`); break;
-          case 'h2': lines.push(`## ${text}`); break;
-          case 'h3': lines.push(`### ${text}`); break;
-          default: lines.push(text);
-        }
-      });
-      setText(lines.join('\n\n'));
+      
+      if (editor) {
+        editor.commands.setContent(result.value);
+        setText(editor.getHTML());
+      }
+      
       const baseName = file.name.slice(0, -5); // remove '.docx'
       onFileNameChange?.(baseName);
     } catch (error) {
@@ -112,6 +190,9 @@ const DocumentEditor: React.FC = () => {
 
   const handleClear = () => {
     if (confirm('¿Borrar todo el texto del documento?')) {
+      if (editor) {
+        editor.commands.clearContent();
+      }
       setText('');
       onFileNameChange?.(null);
     }
@@ -123,22 +204,108 @@ const DocumentEditor: React.FC = () => {
   const btnIdle = 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700';
   const btnActive = 'border-blue-300 dark:border-blue-700 bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-400';
 
-  const toolbarBtn = (label: string, format: FormatType) => (
-    <button
-      key={format}
-      onMouseDown={(e) => { e.preventDefault(); applyFormat(format); }}
-      className={`${btnBase} ${activeFormat === format ? btnActive : btnIdle}`}
-      title={`Aplicar ${label}`}
-    >
-      {label}
-    </button>
-  );
+  if (!editor) {
+    return null;
+  }
 
-  const wordCount = text.trim() === '' ? 0 : text.trim().split(/\s+/).length;
-  const charCount = text.length;
+  // Bubble menu states
+  const isActiveRef = editor.isActive('reference');
 
   return (
-    <div className="flex flex-col h-full flex-1">
+    <div className="flex flex-col h-full flex-1 relative" ref={editorContainerRef}>
+      {/* Tooltip Quick View */}
+      {hoverInfo && (
+        <div
+          className="fixed z-50 p-3 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 max-w-sm pointer-events-none transform -translate-x-1/2 translate-y-4"
+          style={{ top: hoverInfo.y, left: hoverInfo.x }}
+        >
+          <p className="text-xs font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wider mb-1">
+            Fuente Asociada
+          </p>
+          <p className="text-sm text-gray-800 dark:text-gray-200 font-serif">
+            {getReferenceText(hoverInfo.ref)}
+          </p>
+        </div>
+      )}
+
+      {/* Bubble Menu for Reference Association */}
+      <BubbleMenu 
+        editor={editor} 
+        shouldShow={({ editor, state }) => editor.isFocused && !state.selection.empty}
+        className="flex rounded-md shadow-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-1 gap-1 items-center z-40"
+      >
+        {isActiveRef ? (
+          <>
+            <span className="text-xs font-medium text-gray-500 dark:text-gray-400 px-2 flex items-center">
+              <LinkIcon className="h-3 w-3 mr-1" />
+              Referencia vinculada
+            </span>
+            <div className="w-px h-4 bg-gray-200 dark:bg-gray-700 mx-1"></div>
+            <button
+              onClick={() => editor.chain().focus().unsetReference().run()}
+              className="flex items-center px-2 py-1 text-xs font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"
+            >
+              <Unlink className="h-3 w-3 mr-1" />
+              Quitar
+            </button>
+          </>
+        ) : (
+          <div className="relative" ref={dropdownRef}>
+            <button
+              type="button"
+              onMouseDown={(e) => {
+                e.preventDefault(); // Keep editor focus
+                setIsDropdownOpen(!isDropdownOpen);
+              }}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
+            >
+              <LinkIcon className="h-4 w-4 text-blue-500 dark:text-blue-400" />
+              Asociar referencia...
+              <ChevronDown className={`h-4 w-4 text-gray-400 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`} />
+            </button>
+
+            {isDropdownOpen && (
+              <div className="absolute top-full mt-1.5 -left-2 sm:left-0 w-[280px] bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-2xl z-50 flex flex-col overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150">
+                <div className="bg-gray-50 dark:bg-gray-900/50 px-4 py-2.5 border-b border-gray-100 dark:border-gray-700 flex items-center gap-2">
+                  <BookOpen className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                  <span className="text-xs font-bold text-gray-600 dark:text-gray-300 tracking-wider">
+                    FUENTES DISPONIBLES
+                  </span>
+                </div>
+                
+                <div className="max-h-32 overflow-y-auto p-1.5 scrollbar-thin">
+                  {references.length === 0 ? (
+                    <div className="px-4 py-8 text-center">
+                      <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">No hay referencias creadas</p>
+                      <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Añade fuentes desde el panel lateral.</p>
+                    </div>
+                  ) : (
+                    references.map((ref) => (
+                      <button
+                        key={ref.id}
+                        onMouseDown={(e) => {
+                          e.preventDefault();
+                          editor.chain().focus().setReference(ref.id).run();
+                          setIsDropdownOpen(false);
+                        }}
+                        className="w-full text-left px-3 py-2.5 hover:bg-blue-50 dark:hover:bg-blue-900/40 rounded-lg transition-all flex flex-col gap-1 group border border-transparent hover:border-blue-100 dark:hover:border-blue-800/50"
+                      >
+                        <span className="text-sm font-semibold text-gray-900 dark:text-gray-100 group-hover:text-blue-700 dark:group-hover:text-blue-400 line-clamp-1">
+                          {ref.author || 'Sin autor'} ({getYear(ref.year)})
+                        </span>
+                        <span className="text-xs text-gray-500 dark:text-gray-400 line-clamp-2 leading-snug">
+                          {ref.title || 'Sin título'}
+                        </span>
+                      </button>
+                    ))
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+      </BubbleMenu>
+
       {/* Upload row */}
       <div className="mb-3 flex items-center justify-between flex-wrap gap-2">
         <div className="flex items-center gap-3 flex-wrap">
@@ -162,7 +329,7 @@ const DocumentEditor: React.FC = () => {
           </span>
         </div>
 
-        {text && (
+        {editor.getText().trim() && (
           <button
             onClick={handleClear}
             className="inline-flex items-center px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md transition-colors border border-red-200 dark:border-red-900"
@@ -174,16 +341,71 @@ const DocumentEditor: React.FC = () => {
       </div>
 
       {/* Format toolbar */}
-      <div className="mb-1 flex items-center gap-1">
-        {toolbarBtn('H1', 'h1')}
-        {toolbarBtn('H2', 'h2')}
-        {toolbarBtn('H3', 'h3')}
-        <span className="text-gray-300 dark:text-gray-600 select-none px-0.5">|</span>
-        {toolbarBtn('¶', 'p')}
-      </div>
+      <>
+        <div className="mb-1 flex items-center gap-1">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
+                className={`${btnBase} ${editor.isActive('heading', { level: 1 }) ? btnActive : btnIdle}`}
+              >
+                H1
+              </button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Título 1</p>
+            </TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+                className={`${btnBase} ${editor.isActive('heading', { level: 2 }) ? btnActive : btnIdle}`}
+              >
+                H2
+              </button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Título 2</p>
+            </TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
+                className={`${btnBase} ${editor.isActive('heading', { level: 3 }) ? btnActive : btnIdle}`}
+              >
+                H3
+              </button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Título 3</p>
+            </TooltipContent>
+          </Tooltip>
+          <span className="text-gray-300 dark:text-gray-600 select-none px-0.5">|</span>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                onClick={() => editor.chain().focus().setParagraph().run()}
+                className={`${btnBase} ${editor.isActive('paragraph') ? btnActive : btnIdle}`}
+              >
+                ¶
+              </button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Párrafo</p>
+            </TooltipContent>
+          </Tooltip>
+        </div>
+      </>
 
       {/* Editor area */}
-      <div className="relative flex-1">
+      <div 
+        className="relative flex-1 max-h-[70vh] border border-gray-300 dark:border-gray-700 rounded-md shadow-sm bg-white dark:bg-gray-800 overflow-y-auto scrollbar-thin"
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+      >
         {isDragging && (
           <div className="absolute inset-0 z-10 flex items-center justify-center border-2 border-dashed border-blue-500 rounded-md bg-blue-50/80 dark:bg-blue-950/80 pointer-events-none">
             <p className="text-blue-600 dark:text-blue-400 font-medium text-sm">
@@ -191,30 +413,9 @@ const DocumentEditor: React.FC = () => {
             </p>
           </div>
         )}
-        <textarea
-          ref={textareaRef}
-          className="w-full h-full min-h-[400px] p-4 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none font-serif text-base leading-relaxed resize-y bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 transition-colors"
-          placeholder="Escribe o edita el texto de tu documento aquí..."
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          onSelect={handleCursorChange}
-          onClick={handleCursorChange}
-          onDragOver={handleDragOver}
-          onDragLeave={handleDragLeave}
-          onDrop={handleDrop}
-          style={{ whiteSpace: 'pre-wrap' }}
-        />
+        <EditorContent editor={editor} className="h-full" />
       </div>
-
-      {/* Footer */}
-      <div className="mt-2 flex items-center justify-between flex-wrap gap-1">
-        <p className="text-xs text-gray-400 dark:text-gray-500">
-          {wordCount} palabras · {charCount} caracteres
-        </p>
-        <p className="text-xs text-gray-400 dark:text-gray-500 font-mono">
-          # Título 1 &nbsp;·&nbsp; ## Título 2 &nbsp;·&nbsp; ### Título 3
-        </p>
-      </div>
+      
     </div>
   );
 };

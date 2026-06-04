@@ -4,6 +4,7 @@ import {
   Plus, Trash2, ChevronDown, ChevronUp,
   BookOpen, Copy, Check, ArrowUpDown,
 } from 'lucide-react';
+import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 
 export type ReferenceType = 'book' | 'article' | 'website' | 'video';
 
@@ -210,18 +211,24 @@ const ReferencesManager: React.FC = () => {
           Agregar Referencia
         </button>
         {references.length > 1 && (
-          <button
-            onClick={() => setIsSorted(!isSorted)}
-            className={`flex items-center px-3 py-2 text-sm rounded-md border transition-colors ${
-              isSorted
-                ? 'bg-blue-50 dark:bg-blue-950 border-blue-300 dark:border-blue-700 text-blue-700 dark:text-blue-300'
-                : 'border-gray-300 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800'
-            }`}
-            title="Ordenar A→Z por autor"
-          >
-            <ArrowUpDown className="h-4 w-4 mr-1.5" />
-            A→Z
-          </button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                onClick={() => setIsSorted(!isSorted)}
+                className={`flex items-center px-3 py-2 text-sm rounded-md border transition-colors ${
+                  isSorted
+                    ? 'bg-blue-50 dark:bg-blue-950 border-blue-300 dark:border-blue-700 text-blue-700 dark:text-blue-300'
+                    : 'border-gray-300 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800'
+                }`}
+              >
+                <ArrowUpDown className="h-4 w-4 mr-1.5" />
+                A→Z
+              </button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Ordenar A→Z por autor</p>
+            </TooltipContent>
+          </Tooltip>
         )}
       </div>
 
@@ -268,23 +275,35 @@ const ReferencesManager: React.FC = () => {
                     )}
                   </div>
                   <div className="flex items-center space-x-1 shrink-0">
-                    <button
-                      onClick={(e) => { e.stopPropagation(); handleCopy(ref); }}
-                      className="p-1.5 text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 focus:outline-none rounded transition-colors"
-                      title="Copiar referencia"
-                    >
-                      {copiedId === ref.id
-                        ? <Check className="h-4 w-4 text-green-500" />
-                        : <Copy className="h-4 w-4" />
-                      }
-                    </button>
-                    <button
-                      onClick={(e) => { e.stopPropagation(); removeReference(ref.id); }}
-                      className="p-1.5 text-gray-400 hover:text-red-500 dark:hover:text-red-400 focus:outline-none rounded transition-colors"
-                      title="Eliminar referencia"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); handleCopy(ref); }}
+                          className="p-1.5 text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 focus:outline-none rounded transition-colors"
+                        >
+                          {copiedId === ref.id
+                            ? <Check className="h-4 w-4 text-green-500" />
+                            : <Copy className="h-4 w-4" />
+                          }
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Copiar referencia</p>
+                      </TooltipContent>
+                    </Tooltip>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); removeReference(ref.id); }}
+                          className="p-1.5 text-gray-400 hover:text-red-500 dark:hover:text-red-400 focus:outline-none rounded transition-colors"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Eliminar referencia</p>
+                      </TooltipContent>
+                    </Tooltip>
                     {expandedId === ref.id
                       ? <ChevronUp className="h-5 w-5 text-gray-400 dark:text-gray-500" />
                       : <ChevronDown className="h-5 w-5 text-gray-400 dark:text-gray-500" />
