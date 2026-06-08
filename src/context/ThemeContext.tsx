@@ -4,7 +4,7 @@ import type { ITheme } from "@/interfaces/ITheme";
 
 const ThemeContext = createContext<ITheme | undefined>(undefined);
 
-export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const { isDark, toggle: toggleDarkMode } = useDarkMode();
 
   const value = useMemo(

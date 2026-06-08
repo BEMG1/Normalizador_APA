@@ -2,7 +2,7 @@ import React from 'react';
 import { AlertTriangle } from 'lucide-react';
 import { useExport } from '@/context/AppContext';
 
-export const ExportWarningModal: React.FC = () => {
+const ExportWarningModal: React.FC = () => {
   const { showExportWarning, setShowExportWarning, handleExportAnyway } = useExport();
 
   if (!showExportWarning) return null;

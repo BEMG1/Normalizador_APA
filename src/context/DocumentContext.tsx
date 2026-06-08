@@ -4,7 +4,7 @@ import type { IDocument } from "@/interfaces/IDocument";
 
 const DocumentContext = createContext<IDocument | undefined>(undefined);
 
-export const DocumentProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+const DocumentProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [documentText, setDocumentText] = useLocalStorage<string>("documentText", "");
   const [uploadedFileName, setUploadedFileName] = useLocalStorage<string | null>(
     "uploadedFileName",

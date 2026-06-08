@@ -7,16 +7,15 @@ export { useTheme } from "./ThemeContext";
 export { useDocument } from "./DocumentContext";
 export { useReferences } from "./ReferencesContext";
 export { useExport } from "./ExportContext";
-export { useConfig } from "./ConfigContext";
 export { useCitationFormat } from "./CitationFormatContext";
 
 // Cargamos los proveedores a demanda (Lazy Loading)
-const ThemeProvider = React.lazy(() => import("./ThemeContext").then(m => ({ default: m.ThemeProvider })));
-const DocumentProvider = React.lazy(() => import("./DocumentContext").then(m => ({ default: m.DocumentProvider })));
-const ReferencesProvider = React.lazy(() => import("./ReferencesContext").then(m => ({ default: m.ReferencesProvider })));
-const ExportProvider = React.lazy(() => import("./ExportContext").then(m => ({ default: m.ExportProvider })));
-const ConfigProvider = React.lazy(() => import("./ConfigContext").then(m => ({ default: m.ConfigProvider })));
-const CitationFormatProvider = React.lazy(() => import("./CitationFormatContext").then(m => ({ default: m.CitationFormatProvider })));
+const ThemeProvider = React.lazy(() => import("./ThemeContext"));
+const DocumentProvider = React.lazy(() => import("./DocumentContext"));
+const ReferencesProvider = React.lazy(() => import("./ReferencesContext"));
+const ExportProvider = React.lazy(() => import("./ExportContext"));
+const ConfigProvider = React.lazy(() => import("./ConfigContext"));
+const CitationFormatProvider = React.lazy(() => import("./CitationFormatContext"));
 
 // Lista plana de proveedores (El orden importa: de más global a más específico)
 const providers = [
@@ -28,7 +27,7 @@ const providers = [
   ExportProvider,
 ];
 
-export const AppProviders: React.FC<{ children: ReactNode }> = ({ children }) => {
+const AppProviders: React.FC<{ children: ReactNode }> = ({ children }) => {
   return (
     <Suspense fallback={<GlobalLoader />}>
       <ProviderComposer providers={providers}>

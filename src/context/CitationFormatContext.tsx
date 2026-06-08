@@ -10,7 +10,7 @@ const STORAGE_KEY = 'citation_format';
 
 const CitationFormatContext = createContext<ICitationFormat | undefined>(undefined);
 
-export const CitationFormatProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+const CitationFormatProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [citationFormat, setCitationFormatState] = useState<CitationFormat>(() => {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored && stored in CITATION_FORMATTERS) {

@@ -5,7 +5,7 @@ interface ProviderComposerProps {
   children: ReactNode;
 }
 
-export const ProviderComposer: FC<ProviderComposerProps> = ({
+const ProviderComposer: FC<ProviderComposerProps> = ({
   providers,
   children,
 }) => {

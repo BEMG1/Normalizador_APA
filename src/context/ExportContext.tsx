@@ -7,7 +7,7 @@ import type { IExport } from "@/interfaces/IExport";
 
 const ExportContext = createContext<IExport | undefined>(undefined);
 
-export const ExportProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+const ExportProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const { documentText, uploadedFileName } = useDocument();
   const { references } = useReferences();
   const { formatter } = useCitationFormat();

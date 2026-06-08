@@ -2,9 +2,7 @@
 
 export type { CitationFormat, CitationFormatConfig, ICitationFormatter } from './types';
 
-export { apa7Formatter } from './apa7.tsx';
-export { apa6Formatter } from './apa6.tsx';
-export { ieeeFormatter } from './ieee.tsx';
+
 
 import type { CitationFormat, CitationFormatConfig, ICitationFormatter } from './types';
 import { apa7Formatter } from './apa7.tsx';
