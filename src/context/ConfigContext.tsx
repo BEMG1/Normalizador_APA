@@ -1,12 +1,7 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
+import type { IConfig } from "@/interfaces/IConfig";
 
-interface ConfigContextType {
-  style: string;
-  setStyle: (style: string) => void;
-  isLoading: boolean;
-}
-
-const ConfigContext = createContext<ConfigContextType | undefined>(undefined);
+const ConfigContext = createContext<IConfig | undefined>(undefined);
 
 export const ConfigProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [style, setStyleState] = useState<string>('default');
@@ -61,8 +56,13 @@ export const ConfigProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     applyStyle(newStyle);
   };
 
+  const value = useMemo(
+    () => ({ style, setStyle, isLoading }),
+    [style, isLoading]
+  );
+
   return (
-    <ConfigContext.Provider value={{ style, setStyle, isLoading }}>
+    <ConfigContext.Provider value={value}>
       {children}
     </ConfigContext.Provider>
   );

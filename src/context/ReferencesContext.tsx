@@ -1,19 +1,20 @@
-import React, { createContext, useContext, type ReactNode } from "react";
+import React, { createContext, useContext, useMemo, type ReactNode } from "react";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import type { Reference } from "@/components/References/ReferencesManager";
+import type { IReferences } from "@/interfaces/IReferences";
 
-interface ReferencesContextType {
-  references: Reference[];
-  setReferences: React.Dispatch<React.SetStateAction<Reference[]>>;
-}
-
-const ReferencesContext = createContext<ReferencesContextType | undefined>(undefined);
+const ReferencesContext = createContext<IReferences | undefined>(undefined);
 
 export const ReferencesProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [references, setReferences] = useLocalStorage<Reference[]>("references", []);
 
+  const value = useMemo(
+    () => ({ references, setReferences }),
+    [references, setReferences]
+  );
+
   return (
-    <ReferencesContext.Provider value={{ references, setReferences }}>
+    <ReferencesContext.Provider value={value}>
       {children}
     </ReferencesContext.Provider>
   );

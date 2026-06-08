@@ -136,7 +136,7 @@ const DocumentEditor: React.FC = () => {
 
   // Handle external text updates (like from localStorage on load)
   useEffect(() => {
-    if (editor && text && editor.getHTML() !== text) {
+    if (editor && !editor.isDestroyed && text && editor.getHTML() !== text) {
       // Only set content if the editor is empty or on initial load to avoid jumping cursor
       if (editor.isEmpty) {
         editor.commands.setContent(text);

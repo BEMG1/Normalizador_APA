@@ -1,23 +1,14 @@
 import React, { createContext, useContext, useState, useMemo, type ReactNode } from 'react';
 import {
   type CitationFormat,
-  type ICitationFormatter,
   CITATION_FORMATTERS,
   DEFAULT_FORMAT,
 } from '@/utils/citationFormats';
+import type { ICitationFormat } from '@/interfaces/ICitationFormat';
 
 const STORAGE_KEY = 'citation_format';
 
-interface CitationFormatContextType {
-  /** Currently active format id (e.g. 'apa7') */
-  citationFormat: CitationFormat;
-  /** Changes the active format and persists it to localStorage */
-  setCitationFormat: (format: CitationFormat) => void;
-  /** The formatter implementation for the active format */
-  formatter: ICitationFormatter;
-}
-
-const CitationFormatContext = createContext<CitationFormatContextType | undefined>(undefined);
+const CitationFormatContext = createContext<ICitationFormat | undefined>(undefined);
 
 export const CitationFormatProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [citationFormat, setCitationFormatState] = useState<CitationFormat>(() => {
@@ -38,14 +29,19 @@ export const CitationFormatProvider: React.FC<{ children: ReactNode }> = ({ chil
     [citationFormat],
   );
 
+  const value = useMemo(
+    () => ({ citationFormat, setCitationFormat, formatter }),
+    [citationFormat, formatter]
+  );
+
   return (
-    <CitationFormatContext.Provider value={{ citationFormat, setCitationFormat, formatter }}>
+    <CitationFormatContext.Provider value={value}>
       {children}
     </CitationFormatContext.Provider>
   );
 };
 
-export const useCitationFormat = (): CitationFormatContextType => {
+export const useCitationFormat = (): ICitationFormat => {
   const context = useContext(CitationFormatContext);
   if (context === undefined) {
     throw new Error('useCitationFormat must be used within a CitationFormatProvider');
