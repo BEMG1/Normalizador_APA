@@ -1,17 +1,11 @@
-import React, { createContext, useContext, useState, type ReactNode } from "react";
+import React, { createContext, useContext, useState, useMemo, type ReactNode } from "react";
 import { useDocument } from "./DocumentContext";
 import { useReferences } from "./ReferencesContext";
 import { useCitationFormat } from "./CitationFormatContext";
 import { exportToDocx } from "@/utils/docxExport";
+import type { IExport } from "@/interfaces/IExport";
 
-interface ExportContextType {
-  showExportWarning: boolean;
-  setShowExportWarning: React.Dispatch<React.SetStateAction<boolean>>;
-  handleExportClick: () => void;
-  handleExportAnyway: () => Promise<void>;
-}
-
-const ExportContext = createContext<ExportContextType | undefined>(undefined);
+const ExportContext = createContext<IExport | undefined>(undefined);
 
 export const ExportProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const { documentText, uploadedFileName } = useDocument();
@@ -41,15 +35,18 @@ export const ExportProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     await exportToDocx(documentText, references, suggestedName, formatter);
   };
 
+  const value = useMemo(
+    () => ({
+      showExportWarning,
+      setShowExportWarning,
+      handleExportClick,
+      handleExportAnyway,
+    }),
+    [showExportWarning, setShowExportWarning, handleExportClick, handleExportAnyway]
+  );
+
   return (
-    <ExportContext.Provider
-      value={{
-        showExportWarning,
-        setShowExportWarning,
-        handleExportClick,
-        handleExportAnyway,
-      }}
-    >
+    <ExportContext.Provider value={value}>
       {children}
     </ExportContext.Provider>
   );

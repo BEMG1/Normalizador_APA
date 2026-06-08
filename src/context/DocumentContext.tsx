@@ -1,15 +1,8 @@
-import React, { createContext, useContext, type ReactNode } from "react";
+import React, { createContext, useContext, useMemo, type ReactNode } from "react";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
+import type { IDocument } from "@/interfaces/IDocument";
 
-interface DocumentContextType {
-  documentText: string;
-  setDocumentText: React.Dispatch<React.SetStateAction<string>>;
-  uploadedFileName: string | null;
-  setUploadedFileName: React.Dispatch<React.SetStateAction<string | null>>;
-  isExportDisabled: boolean;
-}
-
-const DocumentContext = createContext<DocumentContextType | undefined>(undefined);
+const DocumentContext = createContext<IDocument | undefined>(undefined);
 
 export const DocumentProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [documentText, setDocumentText] = useLocalStorage<string>("documentText", "");
@@ -20,16 +13,19 @@ export const DocumentProvider: React.FC<{ children: ReactNode }> = ({ children }
 
   const isExportDisabled = !documentText.trim();
 
+  const value = useMemo(
+    () => ({
+      documentText,
+      setDocumentText,
+      uploadedFileName,
+      setUploadedFileName,
+      isExportDisabled,
+    }),
+    [documentText, setDocumentText, uploadedFileName, setUploadedFileName, isExportDisabled]
+  );
+
   return (
-    <DocumentContext.Provider
-      value={{
-        documentText,
-        setDocumentText,
-        uploadedFileName,
-        setUploadedFileName,
-        isExportDisabled,
-      }}
-    >
+    <DocumentContext.Provider value={value}>
       {children}
     </DocumentContext.Provider>
   );
