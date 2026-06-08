@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 
-export type ReferenceType = 'book' | 'article' | 'website' | 'video';
+type ReferenceType = 'book' | 'article' | 'website' | 'video';
 
 export interface Reference {
   id: string;
@@ -28,7 +28,7 @@ export interface Reference {
 
 export const getYear = (year: string): string => year.trim() || 's.f.';
 
-export const getYearError = (year: string): string | undefined => {
+const getYearError = (year: string): string | undefined => {
   const trimmed = year.trim();
   if (!trimmed) return undefined;
   // Match 4-digit years or "s.f.", optionally followed by date details in APA format

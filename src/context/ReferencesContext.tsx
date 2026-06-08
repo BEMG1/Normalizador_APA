@@ -5,7 +5,7 @@ import type { IReferences } from "@/interfaces/IReferences";
 
 const ReferencesContext = createContext<IReferences | undefined>(undefined);
 
-export const ReferencesProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+const ReferencesProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [references, setReferences] = useLocalStorage<Reference[]>("references", []);
 
   const value = useMemo(

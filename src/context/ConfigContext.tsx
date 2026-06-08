@@ -3,7 +3,7 @@ import type { IConfig } from "@/interfaces/IConfig";
 
 const ConfigContext = createContext<IConfig | undefined>(undefined);
 
-export const ConfigProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+const ConfigProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [style, setStyleState] = useState<string>('default');
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
@@ -75,3 +75,5 @@ export const useConfig = () => {
   }
   return context;
 };
+
+export default ConfigProvider;
