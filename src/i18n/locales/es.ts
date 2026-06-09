@@ -8,7 +8,7 @@ export const es: TranslationDictionary = {
   warning: 'Advertencia',
   copied: '¡Copiado!',
 
-  appTitle: 'Normalizador APA',
+  appTitle: 'Normy',
   appSubtitle: 'Generador y formateador de textos académicos',
   themeToggleLight: 'Cambiar a modo claro',
   themeToggleDark: 'Cambiar a modo oscuro',
