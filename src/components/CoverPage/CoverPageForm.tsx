@@ -1,6 +1,6 @@
 import React, { useId } from 'react';
 import { RotateCcw, FileImage, ToggleLeft, ToggleRight, Info } from 'lucide-react';
-import { useCoverPage } from '@/context/AppContext';
+import { useCoverPage, useLanguage } from '@/context/AppContext';
 import { useCitationFormat } from '@/context/AppContext';
 import type { CoverPage } from '@/interfaces/ICoverPage';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
@@ -11,70 +11,70 @@ import DatePickerField from './DatePickerField';
 
 interface FieldDef {
   key: keyof CoverPage;
-  label: string;
-  placeholder: string;
+  labelKey: keyof typeof import('@/i18n/locales/es').es;
+  placeholderKey: keyof typeof import('@/i18n/locales/es').es;
+  hintKey?: keyof typeof import('@/i18n/locales/es').es;
   required?: boolean;
-  hint?: string;
   formats: ('apa7' | 'apa6' | 'ieee')[];
 }
 
 const FIELD_DEFS: FieldDef[] = [
   {
     key: 'title',
-    label: 'Título del documento',
-    placeholder: 'Ej: Análisis de redes neuronales convolucionales...',
+    labelKey: 'coverDocTitle',
+    placeholderKey: 'coverDocTitlePlaceholder',
     required: true,
     formats: ['apa7', 'apa6', 'ieee'],
   },
   {
     key: 'subtitle',
-    label: 'Subtítulo',
-    placeholder: 'Subtítulo opcional',
+    labelKey: 'coverSubtitle',
+    placeholderKey: 'coverSubtitlePlaceholder',
     formats: ['apa7', 'apa6'],
   },
   {
     key: 'authors',
-    label: 'Autor(es)',
-    placeholder: 'Ej: Juan Pérez, María López',
+    labelKey: 'coverAuthors',
+    placeholderKey: 'coverAuthorsPlaceholder',
     required: true,
-    hint: 'Separa múltiples autores con coma',
+    hintKey: 'coverAuthorsHint',
     formats: ['apa7', 'apa6', 'ieee'],
   },
   {
     key: 'institution',
-    label: 'Institución / Universidad',
-    placeholder: 'Ej: Universidad Nacional de Colombia',
+    labelKey: 'coverInstitution',
+    placeholderKey: 'coverInstitutionPlaceholder',
     required: true,
     formats: ['apa7', 'apa6', 'ieee'],
   },
   {
     key: 'faculty',
-    label: 'Facultad / Departamento',
-    placeholder: 'Ej: Facultad de Ingeniería de Sistemas',
+    labelKey: 'coverFaculty',
+    placeholderKey: 'coverFacultyPlaceholder',
     formats: ['apa7', 'apa6', 'ieee'],
   },
   {
     key: 'course',
-    label: 'Curso / Asignatura',
-    placeholder: 'Ej: Fundamentos de Bases de Datos - Grupo 01',
+    labelKey: 'coverCourse',
+    placeholderKey: 'coverCoursePlaceholder',
     formats: ['apa7', 'apa6'],
   },
   {
     key: 'teacher',
-    label: 'Docente',
-    placeholder: 'Ej: Dr. Carlos Rodríguez',
+    labelKey: 'coverTeacher',
+    placeholderKey: 'coverTeacherPlaceholder',
     formats: ['apa7', 'apa6'],
   },
   {
     key: 'city',
-    label: 'Ciudad',
-    placeholder: 'Ej: Bogotá',
+    labelKey: 'coverCity',
+    placeholderKey: 'coverCityPlaceholder',
     formats: ['apa7', 'apa6', 'ieee'],
   },
   {
     key: 'date',
-    label: 'Fecha',
-    placeholder: '',
+    labelKey: 'coverDate',
+    placeholderKey: 'coverDate', // Date does not have a real placeholder
     required: true,
     formats: ['apa7', 'apa6', 'ieee'],
   },
@@ -87,19 +87,20 @@ interface FormFieldProps {
   def: FieldDef;
   value: string;
   onChange: (val: string) => void;
+  t: any;
 }
 
-const FormField: React.FC<FormFieldProps> = ({ id, def, value, onChange }) => (
+const FormField: React.FC<FormFieldProps> = ({ id, def, value, onChange, t }) => (
   <div className="flex flex-col gap-1">
     <label
       htmlFor={id}
       className="flex items-center gap-1.5 text-sm font-medium text-gray-700 dark:text-gray-300"
     >
-      {def.label}
+      {t(def.labelKey) as string}
       {def.required && (
         <span className="text-red-500 text-xs" aria-label="campo obligatorio">*</span>
       )}
-      {def.hint && (
+      {def.hintKey && (
         <Tooltip>
           <TooltipTrigger asChild>
             <span className="cursor-help">
@@ -107,7 +108,7 @@ const FormField: React.FC<FormFieldProps> = ({ id, def, value, onChange }) => (
             </span>
           </TooltipTrigger>
           <TooltipContent>
-            <p>{def.hint}</p>
+            <p>{t(def.hintKey) as string}</p>
           </TooltipContent>
         </Tooltip>
       )}
@@ -117,7 +118,7 @@ const FormField: React.FC<FormFieldProps> = ({ id, def, value, onChange }) => (
       type="text"
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      placeholder={def.placeholder}
+      placeholder={t(def.placeholderKey) as string}
       className="w-full px-3 py-2 text-sm rounded-md border border-gray-300 dark:border-gray-700
                  bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100
                  placeholder-gray-400 dark:placeholder-gray-500
@@ -132,6 +133,7 @@ const FormField: React.FC<FormFieldProps> = ({ id, def, value, onChange }) => (
 const CoverPageForm: React.FC = () => {
   const { coverPage, updateField, resetCoverPage } = useCoverPage();
   const { citationFormat } = useCitationFormat();
+  const { t } = useLanguage();
   const baseId = useId();
 
   const activeFields = FIELD_DEFS.filter((f) =>
@@ -152,10 +154,10 @@ const CoverPageForm: React.FC = () => {
           <FileImage className="h-4 w-4 text-blue-600 dark:text-blue-400" />
           <div>
             <p className="text-sm font-semibold text-gray-800 dark:text-gray-200">
-              Incluir portada en la exportación
+              {t('includeCoverPage')}
             </p>
             <p className="text-xs text-gray-500 dark:text-gray-400">
-              Se añadirá como primera página del documento
+              {t('includeCoverPageDesc')}
             </p>
           </div>
         </div>
@@ -163,7 +165,7 @@ const CoverPageForm: React.FC = () => {
           id="cover-page-toggle"
           onClick={handleToggle}
           aria-pressed={coverPage.enabled}
-          aria-label={coverPage.enabled ? 'Desactivar portada' : 'Activar portada'}
+          aria-label={coverPage.enabled ? t('disableCoverPage') : t('enableCoverPage')}
           className="flex-shrink-0 transition-all duration-200 rounded focus:outline-none
                      focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
         >
@@ -194,7 +196,7 @@ const CoverPageForm: React.FC = () => {
                 <DatePickerField
                   key={def.key}
                   id={`${baseId}-${def.key}`}
-                  label={def.label}
+                  label={t(def.labelKey) as string}
                   value={value}
                   required={def.required}
                   onChange={(val) => updateField('date', val)}
@@ -209,6 +211,7 @@ const CoverPageForm: React.FC = () => {
                 def={def}
                 value={value}
                 onChange={(val) => updateField(def.key, val as CoverPage[typeof def.key])}
+                t={t}
               />
             );
           })}
@@ -221,7 +224,7 @@ const CoverPageForm: React.FC = () => {
                        hover:text-red-500 dark:hover:text-red-400 transition-colors self-start"
           >
             <RotateCcw className="h-3.5 w-3.5" />
-            Restablecer campos
+            {t('resetFields')}
           </button>
         </div>
 
@@ -245,10 +248,10 @@ const CoverPageForm: React.FC = () => {
           <Info className="h-4 w-4 text-blue-500 dark:text-blue-400 flex-shrink-0 mt-0.5" />
           <p className="text-xs text-blue-700 dark:text-blue-300 leading-relaxed">
             {citationFormat === 'ieee'
-              ? 'La portada IEEE utiliza el título en mayúsculas y no incluye campos de curso ni docente.'
+              ? t('ieeeCoverNotice')
               : citationFormat === 'apa7'
-              ? 'Formato APA 7ª Ed.: título en la mitad superior de la página, información del autor centrada, doble espacio (§2.3).'
-              : 'Formato APA 6ª Ed.: portada con título, autor, institución, curso, docente y fecha centrados.'}
+              ? t('apa7CoverNotice')
+              : t('apa6CoverNotice')}
           </p>
         </div>
       )}

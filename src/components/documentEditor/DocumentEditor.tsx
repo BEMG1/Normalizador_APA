@@ -1,7 +1,7 @@
 import { useRef, useState, useEffect } from 'react';
 import mammoth from 'mammoth';
 import { Upload, Trash2, Link as LinkIcon, Unlink, ChevronDown, BookOpen } from 'lucide-react';
-import { useDocument, useReferences } from '@/context/AppContext';
+import { useDocument, useReferences, useLanguage } from '@/context/AppContext';
 import { useEditor, EditorContent } from '@tiptap/react';
 import { BubbleMenu } from '@tiptap/react/menus';
 import StarterKit from '@tiptap/starter-kit';
@@ -15,6 +15,7 @@ const DocumentEditor: React.FC = () => {
     setUploadedFileName: onFileNameChange,
   } = useDocument();
   const { references } = useReferences();
+  const { t, language } = useLanguage();
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   const editorContainerRef = useRef<HTMLDivElement>(null);
@@ -148,7 +149,7 @@ const DocumentEditor: React.FC = () => {
 
   const processFile = async (file: File) => {
     if (!file.name.endsWith('.docx')) {
-      alert('Solo se aceptan archivos .docx');
+      alert(t('onlyDocxAllowed'));
       return;
     }
     setIsLoading(true);
@@ -166,7 +167,7 @@ const DocumentEditor: React.FC = () => {
       onFileNameChange?.(baseName);
     } catch (error) {
       console.error('Error extracting text from Word document', error);
-      alert('Hubo un error al leer el documento de Word.');
+      alert(t('errorReadingWord'));
     } finally {
       setIsLoading(false);
     }
@@ -189,7 +190,7 @@ const DocumentEditor: React.FC = () => {
   };
 
   const handleClear = () => {
-    if (confirm('¿Borrar todo el texto del documento?')) {
+    if (confirm(t('clearDocumentPrompt'))) {
       if (editor) {
         editor.commands.clearContent();
       }
@@ -220,10 +221,10 @@ const DocumentEditor: React.FC = () => {
           style={{ top: hoverInfo.y, left: hoverInfo.x }}
         >
           <p className="text-xs font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wider mb-1">
-            Fuente Asociada
+            {t('associatedSource')}
           </p>
           <p className="text-sm text-gray-800 dark:text-gray-200 font-serif">
-            {getReferenceText(hoverInfo.ref)}
+            {getReferenceText(hoverInfo.ref, language)}
           </p>
         </div>
       )}
@@ -238,7 +239,7 @@ const DocumentEditor: React.FC = () => {
           <>
             <span className="text-xs font-medium text-gray-500 dark:text-gray-400 px-2 flex items-center">
               <LinkIcon className="h-3 w-3 mr-1" />
-              Referencia vinculada
+              {t('linkedReference')}
             </span>
             <div className="w-px h-4 bg-gray-200 dark:bg-gray-700 mx-1"></div>
             <button
@@ -246,7 +247,7 @@ const DocumentEditor: React.FC = () => {
               className="flex items-center px-2 py-1 text-xs font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"
             >
               <Unlink className="h-3 w-3 mr-1" />
-              Quitar
+              {t('removeLink')}
             </button>
           </>
         ) : (
@@ -260,7 +261,7 @@ const DocumentEditor: React.FC = () => {
               className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
             >
               <LinkIcon className="h-4 w-4 text-blue-500 dark:text-blue-400" />
-              Asociar referencia...
+              {t('associateReference')}
               <ChevronDown className={`h-4 w-4 text-gray-400 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`} />
             </button>
 
@@ -269,15 +270,15 @@ const DocumentEditor: React.FC = () => {
                 <div className="bg-gray-50 dark:bg-gray-900/50 px-4 py-2.5 border-b border-gray-100 dark:border-gray-700 flex items-center gap-2">
                   <BookOpen className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                   <span className="text-xs font-bold text-gray-600 dark:text-gray-300 tracking-wider">
-                    FUENTES DISPONIBLES
+                    {t('availableSources')}
                   </span>
                 </div>
                 
                 <div className="max-h-32 overflow-y-auto p-1.5 scrollbar-thin">
                   {references.length === 0 ? (
                     <div className="px-4 py-8 text-center">
-                      <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">No hay referencias creadas</p>
-                      <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Añade fuentes desde el panel lateral.</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">{t('noReferencesCreated')}</p>
+                      <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">{t('addSourcesFromPanel')}</p>
                     </div>
                   ) : (
                     references.map((ref) => (
@@ -291,10 +292,10 @@ const DocumentEditor: React.FC = () => {
                         className="w-full text-left px-3 py-2.5 hover:bg-blue-50 dark:hover:bg-blue-900/40 rounded-lg transition-all flex flex-col gap-1 group border border-transparent hover:border-blue-100 dark:hover:border-blue-800/50"
                       >
                         <span className="text-sm font-semibold text-gray-900 dark:text-gray-100 group-hover:text-blue-700 dark:group-hover:text-blue-400 line-clamp-1">
-                          {ref.author || 'Sin autor'} ({getYear(ref.year)})
+                          {ref.author || t('noAuthor')} ({getYear(ref.year, language)})
                         </span>
                         <span className="text-xs text-gray-500 dark:text-gray-400 line-clamp-2 leading-snug">
-                          {ref.title || 'Sin título'}
+                          {ref.title || t('noTitle')}
                         </span>
                       </button>
                     ))
@@ -322,10 +323,10 @@ const DocumentEditor: React.FC = () => {
             className="cursor-pointer inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-700 shadow-sm text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
           >
             <Upload className="h-4 w-4 mr-2 text-gray-500 dark:text-gray-400" />
-            {isLoading ? 'Cargando...' : 'Subir .docx'}
+            {isLoading ? t('loading') : t('uploadDocx')}
           </label>
           <span className="text-sm text-gray-500 dark:text-gray-400">
-            o arrastrá el archivo al editor
+            {t('orDragDrop')}
           </span>
         </div>
 
@@ -335,7 +336,7 @@ const DocumentEditor: React.FC = () => {
             className="inline-flex items-center px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md transition-colors border border-red-200 dark:border-red-900"
           >
             <Trash2 className="h-4 w-4 mr-1.5" />
-            Limpiar
+            {t('clearDocument')}
           </button>
         )}
       </div>
@@ -353,7 +354,7 @@ const DocumentEditor: React.FC = () => {
               </button>
             </TooltipTrigger>
             <TooltipContent>
-              <p>Título 1</p>
+              <p>{t('heading1')}</p>
             </TooltipContent>
           </Tooltip>
           <Tooltip>
@@ -366,7 +367,7 @@ const DocumentEditor: React.FC = () => {
               </button>
             </TooltipTrigger>
             <TooltipContent>
-              <p>Título 2</p>
+              <p>{t('heading2')}</p>
             </TooltipContent>
           </Tooltip>
           <Tooltip>
@@ -379,7 +380,7 @@ const DocumentEditor: React.FC = () => {
               </button>
             </TooltipTrigger>
             <TooltipContent>
-              <p>Título 3</p>
+              <p>{t('heading3')}</p>
             </TooltipContent>
           </Tooltip>
           <span className="text-gray-300 dark:text-gray-600 select-none px-0.5">|</span>
@@ -393,7 +394,7 @@ const DocumentEditor: React.FC = () => {
               </button>
             </TooltipTrigger>
             <TooltipContent>
-              <p>Párrafo</p>
+              <p>{t('paragraph')}</p>
             </TooltipContent>
           </Tooltip>
         </div>
@@ -409,7 +410,7 @@ const DocumentEditor: React.FC = () => {
         {isDragging && (
           <div className="absolute inset-0 z-10 flex items-center justify-center border-2 border-dashed border-blue-500 rounded-md bg-blue-50/80 dark:bg-blue-950/80 pointer-events-none">
             <p className="text-blue-600 dark:text-blue-400 font-medium text-sm">
-              Suelta el .docx aquí
+              {t('dropDocxHere')}
             </p>
           </div>
         )}

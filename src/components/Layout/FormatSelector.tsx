@@ -1,13 +1,14 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ChevronDown, Check } from 'lucide-react';
-import { useCitationFormat } from '@/context/AppContext';
+import { useCitationFormat, useLanguage } from '@/context/AppContext';
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
-import { FORMAT_CONFIGS, type CitationFormat } from '@/utils/citationFormats';
+import { type CitationFormat } from '@/utils/citationFormats';
 
 const FORMAT_ORDER: CitationFormat[] = ['apa7', 'apa6', 'ieee'];
 
 export const FormatSelector: React.FC = () => {
   const { citationFormat, setCitationFormat } = useCitationFormat();
+  const { t } = useLanguage();
   const [isFormatDropdownOpen, setIsFormatDropdownOpen] = useState(false);
   const formatDropdownRef = useRef<HTMLDivElement>(null);
 
@@ -25,7 +26,14 @@ export const FormatSelector: React.FC = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isFormatDropdownOpen]);
 
-  const activeConfig = FORMAT_CONFIGS[citationFormat];
+  const getFormatKey = (fmt: CitationFormat) => {
+    if (fmt === 'apa7') return { label: 'formatAPA7', desc: 'formatAPA7Desc' };
+    if (fmt === 'apa6') return { label: 'formatAPA6', desc: 'formatAPA6Desc' };
+    if (fmt === 'ieee') return { label: 'formatIEEE', desc: 'formatIEEEDesc' };
+    return { label: 'formatAPA7', desc: 'formatAPA7Desc' };
+  };
+
+  const activeKeys = getFormatKey(citationFormat);
 
   return (
     <div className="relative" ref={formatDropdownRef}>
@@ -40,7 +48,7 @@ export const FormatSelector: React.FC = () => {
                 : 'border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700'
             }`}
           >
-            <span className="font-semibold">{activeConfig.label}</span>
+            <span className="font-semibold">{t(activeKeys.label as any)}</span>
             <ChevronDown
               className={`h-4 w-4 text-gray-400 transition-transform duration-200 ${
                 isFormatDropdownOpen ? 'rotate-180' : ''
@@ -49,7 +57,7 @@ export const FormatSelector: React.FC = () => {
           </button>
         </TooltipTrigger>
         <TooltipContent>
-          <p>Cambiar formato de citación</p>
+          <p>{t('formatSelectorTitle')}</p>
         </TooltipContent>
       </Tooltip>
 
@@ -57,12 +65,12 @@ export const FormatSelector: React.FC = () => {
         <div className="absolute right-0 mt-2 w-72 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-2xl z-50 overflow-hidden">
           <div className="bg-gray-50 dark:bg-gray-900/60 px-4 py-2.5 border-b border-gray-100 dark:border-gray-700">
             <p className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-              Formato de Citación
+              {t('formatSelectorTitle')}
             </p>
           </div>
           <div className="p-1.5 space-y-0.5">
             {FORMAT_ORDER.map((fmt) => {
-              const cfg = FORMAT_CONFIGS[fmt];
+              const keys = getFormatKey(fmt);
               const isActive = fmt === citationFormat;
               return (
                 <button
@@ -86,10 +94,10 @@ export const FormatSelector: React.FC = () => {
                           : 'text-gray-900 dark:text-gray-100'
                       }`}
                     >
-                      {cfg.label}
+                      {t(keys.label as any)}
                     </span>
                     <span className="block text-xs text-gray-500 dark:text-gray-400 mt-0.5 leading-snug">
-                      {cfg.description}
+                      {t(keys.desc as any)}
                     </span>
                   </div>
                   {isActive && (

@@ -1,10 +1,11 @@
 import React from 'react';
 import { Moon, Sun } from 'lucide-react';
-import { useTheme } from '@/context/AppContext';
+import { useTheme, useLanguage } from '@/context/AppContext';
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 
 export const ThemeToggle: React.FC = () => {
   const { isDark, toggleDarkMode } = useTheme();
+  const { t } = useLanguage();
 
   return (
     <Tooltip>
@@ -17,7 +18,7 @@ export const ThemeToggle: React.FC = () => {
         </button>
       </TooltipTrigger>
       <TooltipContent>
-        <p>{isDark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}</p>
+        <p>{isDark ? t('themeToggleLight') : t('themeToggleDark')}</p>
       </TooltipContent>
     </Tooltip>
   );

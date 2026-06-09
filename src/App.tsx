@@ -7,6 +7,8 @@ import ExportWarningModal from "@/components/documentEditor/ExportWarningModal";
 import CoverPageForm from "@/components/CoverPage/CoverPageForm";
 import { FileText, BookOpen, FileImage } from "lucide-react";
 import { TooltipProvider } from "@/components/ui/tooltip";
+
+import { useLanguage } from "@/context/AppContext";
 import { useCoverPage } from "@/context/AppContext";
 
 // ─── Tab types ─────────────────────────────────────────────────────────────────
@@ -18,6 +20,7 @@ type RightPanelTab = 'references' | 'cover';
 function RightPanel() {
   const [activeTab, setActiveTab] = useState<RightPanelTab>('cover');
   const { coverPage } = useCoverPage();
+  const { t } = useLanguage();
 
   return (
     <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-800 flex-1 flex flex-col min-h-0">
@@ -36,7 +39,7 @@ function RightPanel() {
           role="tab"
         >
           <FileImage className="h-4 w-4" />
-          Portada
+          {t('coverPageTab')}
           {/* Badge when cover page is enabled */}
           {coverPage.enabled && (
             <span className="ml-1 inline-flex items-center justify-center h-4 min-w-4 px-1 text-[10px] font-bold
@@ -58,7 +61,7 @@ function RightPanel() {
           role="tab"
         >
           <BookOpen className="h-4 w-4" />
-          Referencias
+          {t('referencesHeading')}
         </button>
       </div>
 
@@ -77,6 +80,8 @@ function RightPanel() {
 // ─── App content ───────────────────────────────────────────────────────────────
 
 function AppContent() {
+  const { t } = useLanguage();
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col">
       <ExportWarningModal />
@@ -90,7 +95,7 @@ function AppContent() {
             <div className="flex items-center space-x-2 mb-4 border-b border-gray-200 dark:border-gray-700 pb-2">
               <FileText className="h-5 w-5 text-gray-500 dark:text-gray-400" />
               <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100">
-                Documento
+                {t('documentTitle')}
               </h2>
             </div>
             <DocumentEditor />

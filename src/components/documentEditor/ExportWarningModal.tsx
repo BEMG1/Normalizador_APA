@@ -1,9 +1,10 @@
 import React from 'react';
 import { AlertTriangle } from 'lucide-react';
-import { useExport } from '@/context/AppContext';
+import { useExport, useLanguage } from '@/context/AppContext';
 
 const ExportWarningModal: React.FC = () => {
   const { showExportWarning, setShowExportWarning, handleExportAnyway } = useExport();
+  const { t } = useLanguage();
 
   if (!showExportWarning) return null;
 
@@ -14,10 +15,10 @@ const ExportWarningModal: React.FC = () => {
           <AlertTriangle className="h-5 w-5 text-amber-500 shrink-0 mt-0.5" />
           <div>
             <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
-              Referencias incompletas
+              {t('warningTitle')}
             </h3>
             <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-              Hay referencias sin autor o título. El documento exportado tendrá campos vacíos.
+              {t('warningMessage')}
             </p>
           </div>
         </div>
@@ -26,13 +27,13 @@ const ExportWarningModal: React.FC = () => {
             onClick={() => setShowExportWarning(false)}
             className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
           >
-            Cancelar
+            {t('cancel')}
           </button>
           <button
             onClick={handleExportAnyway}
             className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors"
           >
-            Exportar igual
+            {t('exportAnyway')}
           </button>
         </div>
       </div>

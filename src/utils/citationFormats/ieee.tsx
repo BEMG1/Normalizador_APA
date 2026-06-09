@@ -46,31 +46,33 @@ const splitAuthors = (authorStr: string): string[] =>
 //   • Author format: Initials Surname (e.g. "J. C. García")
 //   • References section heading: "References"
 
+import { es, en } from '@/i18n';
+
+const tText = (key: keyof typeof es, lang?: string): string => ((lang === 'en' ? en[key] : es[key]) ?? es[key]) as string;
+
 export const ieeeFormatter: ICitationFormatter = {
   sortMode: 'appearance',
-  sectionHeading: 'References',
+  sectionHeading: (lang?: string) => tText('referencesHeading', lang),
 
   // ── Plain-text reference ──────────────────────────────────────────────────
-  // IEEE does NOT prepend the [n] number here; that is the responsibility of
-  // the export layer which knows the ordering.
-  formatReference(ref: Reference): string {
+  formatReference(ref: Reference, lang?: string): string {
     const authors = splitAuthors(ref.author || '');
     const formattedAuthors =
       authors.length > 0
         ? authors.map(formatIEEEAuthor).join(', ')
-        : '[Autor]';
+        : tText('unknownAuthor', lang);
 
-    const year = getYear(ref.year);
-    const title = ref.title || '[Título]';
+    const year = getYear(ref.year, lang);
+    const title = ref.title || tText('unknownTitle', lang);
 
     switch (ref.type) {
       case 'book': {
-        const publisher = ref.publisher || '[Editorial]';
+        const publisher = ref.publisher || `[${tText('publisher', lang)}]`;
         return `${formattedAuthors}, "${title}," ${publisher}, ${year}.`;
       }
 
       case 'article': {
-        const journal = ref.journal || '[Revista]';
+        const journal = ref.journal || `[${tText('journalName', lang)}]`;
         const volume = ref.volume ? `vol. ${ref.volume}` : '';
         const issue = ref.issue ? `, no. ${ref.issue}` : '';
         const pages = ref.pages ? `, pp. ${ref.pages}` : '';
@@ -80,36 +82,36 @@ export const ieeeFormatter: ICitationFormatter = {
       }
 
       case 'website': {
-        const siteName = ref.siteName || '[Nombre del Sitio]';
+        const siteName = ref.siteName || `[${tText('siteName', lang)}]`;
         const url = ref.url || '[URL]';
         return `${formattedAuthors}, "${title}," ${siteName}. [Online]. Available: ${url}. Accessed: ${year}.`;
       }
 
       case 'video': {
-        const channel = ref.channel || '[Canal]';
+        const channel = ref.channel || `[${tText('channelName', lang)}]`;
         const url = ref.url || '[URL]';
         return `${formattedAuthors}, "${title}" [Video]. ${channel}, ${year}. Available: ${url}.`;
       }
 
       default:
-        return 'Referencia incompleta';
+        return tText('incompleteReferenceFallback', lang);
     }
   },
 
   // ── JSX preview ───────────────────────────────────────────────────────────
-  formatReferenceJSX(ref: Reference): React.ReactElement {
+  formatReferenceJSX(ref: Reference, lang?: string): React.ReactElement {
     const authors = splitAuthors(ref.author || '');
     const formattedAuthors =
       authors.length > 0
         ? authors.map(formatIEEEAuthor).join(', ')
-        : '[Autor]';
+        : tText('unknownAuthor', lang);
 
-    const year = getYear(ref.year);
-    const title = ref.title || '[Título]';
+    const year = getYear(ref.year, lang);
+    const title = ref.title || tText('unknownTitle', lang);
 
     switch (ref.type) {
       case 'book': {
-        const publisher = ref.publisher || '[Editorial]';
+        const publisher = ref.publisher || `[${tText('publisher', lang)}]`;
         return (
           <span>
             {formattedAuthors}, &ldquo;{title},&rdquo; {publisher}, {year}.
@@ -118,7 +120,7 @@ export const ieeeFormatter: ICitationFormatter = {
       }
 
       case 'article': {
-        const journal = ref.journal || '[Revista]';
+        const journal = ref.journal || `[${tText('journalName', lang)}]`;
         const volume = ref.volume ? `vol. ${ref.volume}` : '';
         const issue = ref.issue ? `, no. ${ref.issue}` : '';
         const pages = ref.pages ? `, pp. ${ref.pages}` : '';
@@ -133,7 +135,7 @@ export const ieeeFormatter: ICitationFormatter = {
       }
 
       case 'website': {
-        const siteName = ref.siteName || '[Nombre del Sitio]';
+        const siteName = ref.siteName || `[${tText('siteName', lang)}]`;
         const url = ref.url || '[URL]';
         return (
           <span>
@@ -144,7 +146,7 @@ export const ieeeFormatter: ICitationFormatter = {
       }
 
       case 'video': {
-        const channel = ref.channel || '[Canal]';
+        const channel = ref.channel || `[${tText('channelName', lang)}]`;
         const url = ref.url || '[URL]';
         return (
           <span>
@@ -154,14 +156,12 @@ export const ieeeFormatter: ICitationFormatter = {
       }
 
       default:
-        return <span>Referencia incompleta</span>;
+        return <span>{tText('incompleteReferenceFallback', lang)}</span>;
     }
   },
 
   // ── In-text citation ──────────────────────────────────────────────────────
-  // IEEE: [n] where n is the 1-based index of the reference in appearance order.
-  // The index is provided by the export layer / editor layer.
-  formatInTextCitation(_ref: Reference, index = 1): string {
+  formatInTextCitation(_ref: Reference, index = 1, _lang?: string): string {
     return ` [${index}]`;
   },
 };

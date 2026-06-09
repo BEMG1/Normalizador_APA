@@ -1,6 +1,7 @@
 import React from 'react';
 import { ThemeToggle } from './ThemeToggle';
 import { FormatSelector } from './FormatSelector';
+import { LanguageToggle } from './LanguageToggle';
 import { ExportButton } from './ExportButton';
 import { HeaderBrand } from './HeaderBrand';
 
@@ -14,6 +15,7 @@ const Header: React.FC = () => {
         {/* ── Actions ── */}
         <div className="flex items-center space-x-3">
           <FormatSelector />
+          <LanguageToggle />
           <ThemeToggle />
           <ExportButton />
         </div>

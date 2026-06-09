@@ -1,33 +1,28 @@
 import React, { useState, useRef, useEffect, useCallback, useId } from 'react';
 import { Calendar, ChevronLeft, ChevronRight, X } from 'lucide-react';
-
-// ─── Constants ─────────────────────────────────────────────────────────────────
-
-const MONTHS_ES = [
-  'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-  'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre',
-];
-
-const DAYS_SHORT = ['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sá'];
+import { useLanguage } from '@/context/AppContext';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-/** Formats a Date as "DD de Mes de YYYY" in Spanish */
-export const formatDateES = (date: Date): string => {
+/** Formats a Date using the localized months array */
+export const formatDateLocalized = (date: Date, months: string[]): string => {
   const day = date.getDate();
-  const month = MONTHS_ES[date.getMonth()];
+  const month = months[date.getMonth()];
   const year = date.getFullYear();
-  return `${day} de ${month} de ${year}`;
+  // Using a universal format: "DD Month YYYY" vs "DD de Mes de YYYY"
+  // For simplicity, we just use space separation which is generally understood, or match what es.ts uses if we want to be strict.
+  // We'll stick to `${day} ${month} ${year}`
+  return `${day} ${month} ${year}`;
 };
 
 /** Parses the formatted string back to a Date (returns null if unparseable) */
-const parseFormattedDate = (value: string): Date | null => {
+const parseFormattedDate = (value: string, months: string[]): Date | null => {
   if (!value) return null;
-  // Try "DD de Mes de YYYY"
-  const match = value.match(/^(\d{1,2}) de (\w+) de (\d{4})$/);
+  // Try matching "DD Month YYYY" with optional " de " for backwards compatibility
+  const match = value.match(/^(\d{1,2})(?: de )?\s+(\w+)(?: de )?\s+(\d{4})$/i);
   if (match) {
     const day = parseInt(match[1], 10);
-    const monthIdx = MONTHS_ES.findIndex(
+    const monthIdx = months.findIndex(
       (m) => m.toLowerCase() === match[2].toLowerCase(),
     );
     const year = parseInt(match[3], 10);
@@ -72,11 +67,14 @@ const DatePickerField: React.FC<DatePickerFieldProps> = ({
   onChange,
   required,
 }) => {
+  const { t } = useLanguage();
   const autoId = useId();
   const fieldId = id ?? autoId;
 
   const today = new Date();
-  const parsed = parseFormattedDate(value);
+  // Safe cast since we know months is string[]
+  const months = t('months') as unknown as string[];
+  const parsed = parseFormattedDate(value, months);
 
   const [open, setOpen] = useState(false);
   const [viewMonth, setViewMonth] = useState(parsed?.getMonth() ?? today.getMonth());
@@ -85,7 +83,7 @@ const DatePickerField: React.FC<DatePickerFieldProps> = ({
 
   // Sync state when value changes externally (e.g. reset)
   useEffect(() => {
-    const d = parseFormattedDate(value);
+    const d = parseFormattedDate(value, months);
     setSelected(d);
     if (d) {
       setViewMonth(d.getMonth());
@@ -119,7 +117,7 @@ const DatePickerField: React.FC<DatePickerFieldProps> = ({
 
   const handleDayClick = (day: Date) => {
     setSelected(day);
-    onChange(formatDateES(day));
+    onChange(formatDateLocalized(day, months));
     setOpen(false);
   };
 
@@ -167,14 +165,14 @@ const DatePickerField: React.FC<DatePickerFieldProps> = ({
                     bg-white dark:bg-gray-800`}
       >
         <span className={value ? 'text-gray-900 dark:text-gray-100' : 'text-gray-400 dark:text-gray-500'}>
-          {value || 'Seleccionar fecha…'}
+          {value || t('selectDate')}
         </span>
         <span className="flex items-center gap-1 flex-shrink-0 ml-2">
           {value && (
             <span
               role="button"
               tabIndex={0}
-              aria-label="Limpiar fecha"
+              aria-label={t('clearDate')}
               onClick={handleClear}
               onKeyDown={(e) => e.key === 'Enter' && handleClear(e as any)}
               className="p-0.5 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400
@@ -191,7 +189,7 @@ const DatePickerField: React.FC<DatePickerFieldProps> = ({
       {open && (
         <div
           role="dialog"
-          aria-label="Selector de fecha"
+          aria-label={t('datePickerLabel')}
           className="absolute z-50 mt-1 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700
                      rounded-xl shadow-2xl p-4 w-72 select-none"
           style={{ marginTop: '0.25rem' }}
@@ -201,7 +199,7 @@ const DatePickerField: React.FC<DatePickerFieldProps> = ({
             <button
               type="button"
               onClick={prevMonth}
-              aria-label="Mes anterior"
+              aria-label={t('prevMonth')}
               className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500
                          dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
             >
@@ -217,7 +215,7 @@ const DatePickerField: React.FC<DatePickerFieldProps> = ({
                            border-none outline-none cursor-pointer hover:text-blue-600 dark:hover:text-blue-400
                            transition-colors"
               >
-                {MONTHS_ES.map((m, i) => (
+                {months.map((m: string, i: number) => (
                   <option key={m} value={i} className="bg-white dark:bg-gray-900 font-normal">
                     {m}
                   </option>
@@ -244,7 +242,7 @@ const DatePickerField: React.FC<DatePickerFieldProps> = ({
             <button
               type="button"
               onClick={nextMonth}
-              aria-label="Mes siguiente"
+              aria-label={t('nextMonth')}
               className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500
                          dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
             >
@@ -254,7 +252,7 @@ const DatePickerField: React.FC<DatePickerFieldProps> = ({
 
           {/* Day-of-week headers */}
           <div className="grid grid-cols-7 mb-1">
-            {DAYS_SHORT.map((d) => (
+            {(t('daysShort') as unknown as string[]).map((d: string) => (
               <div
                 key={d}
                 className="text-center text-xs font-semibold text-gray-400 dark:text-gray-500 py-1"
@@ -278,7 +276,7 @@ const DatePickerField: React.FC<DatePickerFieldProps> = ({
                   key={day.toISOString()}
                   type="button"
                   onClick={() => handleDayClick(day)}
-                  aria-label={formatDateES(day)}
+                  aria-label={formatDateLocalized(day, months)}
                   aria-pressed={isSelected}
                   className={`relative flex items-center justify-center h-8 w-full rounded-lg text-sm
                               font-medium transition-all duration-100
@@ -310,7 +308,7 @@ const DatePickerField: React.FC<DatePickerFieldProps> = ({
                          hover:text-blue-700 dark:hover:text-blue-300 transition-colors py-1
                          hover:bg-blue-50 dark:hover:bg-blue-950/40 rounded-lg"
             >
-              Ir a hoy — {formatDateES(today)}
+              {t('goToToday')} — {formatDateLocalized(today, months)}
             </button>
           </div>
         </div>
