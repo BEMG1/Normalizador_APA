@@ -3,6 +3,7 @@ import { useDocument } from "./DocumentContext";
 import { useReferences } from "./ReferencesContext";
 import { useCitationFormat } from "./CitationFormatContext";
 import { exportToDocx } from "@/utils/docxExport";
+import { useCoverPage } from "./CoverPageContext";
 import type { IExport } from "@/interfaces/IExport";
 
 const ExportContext = createContext<IExport | undefined>(undefined);
@@ -11,6 +12,7 @@ const ExportProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const { documentText, uploadedFileName } = useDocument();
   const { references } = useReferences();
   const { formatter } = useCitationFormat();
+  const { coverPage } = useCoverPage();
   const [showExportWarning, setShowExportWarning] = useState(false);
 
   const handleExportClick = () => {
@@ -23,7 +25,7 @@ const ExportProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       const suggestedName = uploadedFileName
         ? `${uploadedFileName}_Normalizate_APA`
         : "File_Normalizate_APA";
-      exportToDocx(documentText, references, suggestedName, formatter);
+      exportToDocx(documentText, references, suggestedName, formatter, coverPage);
     }
   };
 
@@ -32,7 +34,7 @@ const ExportProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const suggestedName = uploadedFileName
       ? `${uploadedFileName}_Normalizate_APA`
       : "File_Normalizate_APA";
-    await exportToDocx(documentText, references, suggestedName, formatter);
+    await exportToDocx(documentText, references, suggestedName, formatter, coverPage);
   };
 
   const value = useMemo(
