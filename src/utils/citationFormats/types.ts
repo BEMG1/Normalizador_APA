@@ -24,13 +24,13 @@ export interface ICitationFormatter {
    * Returns the full, plain-text reference string for use in the
    * references section (e.g. for clipboard copy).
    */
-  formatReference(ref: Reference): string;
+  formatReference(ref: Reference, lang?: string): string;
 
   /**
    * Returns a JSX element with appropriate italic/bold markup
    * for the in-editor preview panel.
    */
-  formatReferenceJSX(ref: Reference): React.ReactElement;
+  formatReferenceJSX(ref: Reference, lang?: string): React.ReactElement;
 
   /**
    * Returns the in-text citation string to be appended when the user
@@ -39,7 +39,7 @@ export interface ICitationFormatter {
    * @param ref - The reference being cited.
    * @param index - 1-based position of the reference (used by IEEE).
    */
-  formatInTextCitation(ref: Reference, index?: number): string;
+  formatInTextCitation(ref: Reference, index?: number, lang?: string): string;
 
   /**
    * Indicates whether references should be sorted alphabetically (APA)
@@ -51,5 +51,5 @@ export interface ICitationFormatter {
    * The display label for the references section heading in the exported
    * document (e.g. "Referencias" or "References").
    */
-  sectionHeading: string;
+  sectionHeading: (lang?: string) => string;
 }

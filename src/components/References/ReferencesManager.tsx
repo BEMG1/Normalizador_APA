@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useReferences, useCitationFormat } from '@/context/AppContext';
+import { useReferences, useCitationFormat, useLanguage } from '@/context/AppContext';
 import { FORMAT_CONFIGS } from '@/utils/citationFormats';
 import {
   Plus, Trash2, ChevronDown, ChevronUp,
@@ -26,8 +26,7 @@ export interface Reference {
   channel?: string;
 }
 
-export const getYear = (year: string): string => year.trim() || 's.f.';
-
+export const getYear = (year: string, lang?: string): string => year.trim() || (lang === 'en' ? 'n.d.' : 's.f.');
 const getYearError = (year: string): string | undefined => {
   const trimmed = year.trim();
   if (!trimmed) return undefined;
@@ -53,28 +52,32 @@ const getYearError = (year: string): string | undefined => {
  * Used in docxExport as a safe fallback and in legacy call sites.
  * For format-aware rendering, prefer `useCitationFormat().formatter.formatReference(ref)`.
  */
-export const getReferenceText = (ref: Reference): string => {
-  const author = ref.author || '[Autor]';
-  const year = getYear(ref.year);
-  const title = ref.title || '[Título]';
+import { es, en } from '@/i18n';
+
+const tText = (key: keyof typeof es, lang?: string): string => ((lang === 'en' ? en[key] : es[key]) ?? es[key]) as string;
+
+export const getReferenceText = (ref: Reference, lang?: string): string => {
+  const author = ref.author || tText('unknownAuthor', lang);
+  const year = getYear(ref.year, lang);
+  const title = ref.title || tText('unknownTitle', lang);
 
   switch (ref.type) {
     case 'book':
-      return `${author} (${year}). ${title}. ${ref.publisher || '[Editorial]'}.`;
+      return `${author} (${year}). ${title}. ${ref.publisher || `[${tText('publisher', lang)}]`}.`;
     case 'article': {
-      const journal = ref.journal || '[Revista]';
-      const volume = ref.volume || '[Volumen]';
+      const journal = ref.journal || `[${tText('journalName', lang)}]`;
+      const volume = ref.volume || `[${tText('volume', lang)}]`;
       const issue = ref.issue ? `(${ref.issue})` : '';
       const pages = ref.pages ? `, ${ref.pages}` : '';
       const doi = ref.doi ? ` https://doi.org/${ref.doi}` : '';
       return `${author} (${year}). ${title}. ${journal}, ${volume}${issue}${pages}.${doi}`;
     }
     case 'website':
-      return `${author} (${year}). ${title}. ${ref.siteName || '[Nombre del Sitio]'}. ${ref.url || '[URL]'}`;
+      return `${author} (${year}). ${title}. ${ref.siteName || `[${tText('siteName', lang)}]`}. ${ref.url || '[URL]'}`;
     case 'video':
-      return `${author} (${year}). ${title} [Video]. ${ref.channel || '[Canal]'}. ${ref.url || '[URL]'}`;
+      return `${author} (${year}). ${title} [Video]. ${ref.channel || `[${tText('channelName', lang)}]`}. ${ref.url || '[URL]'}`;
     default:
-      return 'Referencia incompleta';
+      return tText('incompleteReferenceFallback', lang);
   }
 };
 
@@ -118,6 +121,7 @@ const Field: React.FC<FieldProps> = ({ label, hint, value, onChange, placeholder
 const ReferencesManager: React.FC = () => {
   const { references, setReferences } = useReferences();
   const { citationFormat, formatter } = useCitationFormat();
+  const { language, t } = useLanguage();
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [isSorted, setIsSorted] = useState(false);
@@ -146,7 +150,7 @@ const ReferencesManager: React.FC = () => {
   };
 
   const handleCopy = async (ref: Reference) => {
-    await navigator.clipboard.writeText(formatter.formatReference(ref));
+    await navigator.clipboard.writeText(formatter.formatReference(ref, language));
     setCopiedId(ref.id);
     setTimeout(() => setCopiedId(null), 2000);
   };
@@ -165,7 +169,7 @@ const ReferencesManager: React.FC = () => {
           className="flex-1 flex justify-center items-center px-4 py-2 border-2 border-dashed border-gray-300 dark:border-gray-700 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 hover:border-gray-400 dark:hover:border-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
         >
           <Plus className="h-5 w-5 mr-2 text-gray-400 dark:text-gray-500" />
-          Agregar Referencia
+          {t('addReference')}
         </button>
         {references.length > 1 && (
           <Tooltip>
@@ -179,11 +183,11 @@ const ReferencesManager: React.FC = () => {
                 }`}
               >
                 <ArrowUpDown className="h-4 w-4 mr-1.5" />
-                A→Z
+                {t('sortAZ')}
               </button>
             </TooltipTrigger>
             <TooltipContent>
-              <p>Ordenar A→Z por autor</p>
+              <p>{t('sortAZTooltip')}</p>
             </TooltipContent>
           </Tooltip>
         )}
@@ -191,7 +195,7 @@ const ReferencesManager: React.FC = () => {
 
       {isSorted && (
         <p className="text-xs text-blue-600 dark:text-blue-400 mb-3 text-center">
-          Mostrando el orden de exportación
+          {t('showingExportOrder')}
         </p>
       )}
 
@@ -199,8 +203,8 @@ const ReferencesManager: React.FC = () => {
         {references.length === 0 ? (
           <div className="text-center py-12 text-gray-400 dark:text-gray-600">
             <BookOpen className="h-10 w-10 mx-auto mb-3 opacity-50" />
-            <p className="text-sm">No hay referencias aún.</p>
-            <p className="text-xs mt-1">Hacé clic en el botón arriba para comenzar.</p>
+            <p className="text-sm">{t('noReferences')}</p>
+            <p className="text-xs mt-1">{t('noReferencesHint')}</p>
           </div>
         ) : (
           displayRefs.map((ref, index) => {
@@ -223,11 +227,11 @@ const ReferencesManager: React.FC = () => {
                       #{index + 1}
                     </span>
                     <span className="text-sm text-gray-600 dark:text-gray-400">
-                      {ref.author ? `${ref.author} (${getYear(ref.year)})` : 'Nueva referencia'}
+                      {ref.author ? `${ref.author} (${getYear(ref.year, language)})` : t('newReference')}
                     </span>
                     {isIncomplete && (
                       <span className="ml-2 text-xs font-medium text-amber-600 dark:text-amber-400">
-                        Incompleta
+                        {t('incompleteRef')}
                       </span>
                     )}
                   </div>
@@ -245,7 +249,7 @@ const ReferencesManager: React.FC = () => {
                         </button>
                       </TooltipTrigger>
                       <TooltipContent>
-                        <p>Copiar referencia</p>
+                        <p>{t('copyRefTooltip')}</p>
                       </TooltipContent>
                     </Tooltip>
                     <Tooltip>
@@ -258,7 +262,7 @@ const ReferencesManager: React.FC = () => {
                         </button>
                       </TooltipTrigger>
                       <TooltipContent>
-                        <p>Eliminar referencia</p>
+                        <p>{t('deleteRefTooltip')}</p>
                       </TooltipContent>
                     </Tooltip>
                     {expandedId === ref.id
@@ -272,50 +276,50 @@ const ReferencesManager: React.FC = () => {
                   <div className="p-4 border-t border-gray-200 dark:border-gray-700 space-y-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        Tipo de Fuente
+                        {t('sourceType')}
                       </label>
                       <select
                         value={ref.type}
                         onChange={(e) => updateReference(ref.id, 'type', e.target.value as ReferenceType)}
                         className="block w-full pl-3 pr-10 py-2 text-sm border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 rounded-md transition-colors"
                       >
-                        <option value="book">Libro</option>
-                        <option value="article">Artículo de Revista</option>
-                        <option value="website">Página Web</option>
-                        <option value="video">Video (YouTube, etc.)</option>
+                        <option value="book">{t('typeBook')}</option>
+                        <option value="article">{t('typeArticle')}</option>
+                        <option value="website">{t('typeWebsite')}</option>
+                        <option value="video">{t('typeVideo')}</option>
                       </select>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <Field
-                        label="Autor(es)"
-                        hint="(Ej. Apellido, A., & Apellido, B.)"
+                        label={t('authors')}
+                        hint={t('authorsHint')}
                         value={ref.author}
                         onChange={(v) => updateReference(ref.id, 'author', v)}
-                        placeholder="Pérez, J."
+                        placeholder={t('authorsPlaceholder')}
                         colSpan
                       />
                       <Field
-                        label="Año"
+                        label={t('year')}
                         value={ref.year}
                         onChange={(v) => updateReference(ref.id, 'year', v)}
-                        placeholder="2023"
+                        placeholder={t('yearPlaceholder')}
                         error={getYearError(ref.year)}
                       />
                       <Field
-                        label="Título"
+                        label={t('title')}
                         value={ref.title}
                         onChange={(v) => updateReference(ref.id, 'title', v)}
-                        placeholder="Título del trabajo"
+                        placeholder={t('titlePlaceholder')}
                         colSpan
                       />
 
                       {ref.type === 'book' && (
                         <Field
-                          label="Editorial"
+                          label={t('publisher')}
                           value={ref.publisher || ''}
                           onChange={(v) => updateReference(ref.id, 'publisher', v)}
-                          placeholder="Nombre de la Editorial"
+                          placeholder={t('publisherPlaceholder')}
                           colSpan
                         />
                       )}
@@ -323,34 +327,34 @@ const ReferencesManager: React.FC = () => {
                       {ref.type === 'article' && (
                         <>
                           <Field
-                            label="Nombre de la Revista"
+                            label={t('journalName')}
                             value={ref.journal || ''}
                             onChange={(v) => updateReference(ref.id, 'journal', v)}
-                            placeholder="Revista de Psicología"
+                            placeholder={t('journalPlaceholder')}
                             colSpan
                           />
                           <Field
-                            label="Volumen"
+                            label={t('volume')}
                             value={ref.volume || ''}
                             onChange={(v) => updateReference(ref.id, 'volume', v)}
                             placeholder="12"
                           />
                           <Field
-                            label="Número (Issue)"
+                            label={t('issue')}
                             value={ref.issue || ''}
                             onChange={(v) => updateReference(ref.id, 'issue', v)}
                             placeholder="4"
                           />
                           <Field
-                            label="Páginas"
+                            label={t('pages')}
                             value={ref.pages || ''}
                             onChange={(v) => updateReference(ref.id, 'pages', v)}
                             placeholder="123-145"
                             colSpan
                           />
                           <Field
-                            label="DOI"
-                            hint="sin el prefijo https://doi.org/"
+                            label={t('doi')}
+                            hint={t('doiHint')}
                             value={ref.doi || ''}
                             onChange={(v) => updateReference(ref.id, 'doi', v)}
                             placeholder="10.1016/j.ejemplo.2024.01.001"
@@ -361,7 +365,7 @@ const ReferencesManager: React.FC = () => {
 
                       {(ref.type === 'website' || ref.type === 'video') && (
                         <Field
-                          label="URL"
+                          label={t('url')}
                           value={ref.url || ''}
                           onChange={(v) => updateReference(ref.id, 'url', v)}
                           placeholder="https://..."
@@ -371,20 +375,20 @@ const ReferencesManager: React.FC = () => {
 
                       {ref.type === 'website' && (
                         <Field
-                          label="Nombre del Sitio Web"
+                          label={t('siteName')}
                           value={ref.siteName || ''}
                           onChange={(v) => updateReference(ref.id, 'siteName', v)}
-                          placeholder="Wikipedia, OMS, etc."
+                          placeholder={t('siteNamePlaceholder')}
                           colSpan
                         />
                       )}
 
                       {ref.type === 'video' && (
                         <Field
-                          label="Canal o Autor del Video"
+                          label={t('channelName')}
                           value={ref.channel || ''}
                           onChange={(v) => updateReference(ref.id, 'channel', v)}
-                          placeholder="Nombre del canal de YouTube"
+                          placeholder={t('channelPlaceholder')}
                           colSpan
                         />
                       )}
@@ -392,13 +396,13 @@ const ReferencesManager: React.FC = () => {
 
                     <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-950/50 border border-blue-100 dark:border-blue-900 rounded-md">
                       <p className="text-xs font-semibold text-blue-800 dark:text-blue-300 uppercase tracking-wider mb-1">
-                        Vista previa · {FORMAT_CONFIGS[citationFormat].label}
+                        {t('preview')} · {FORMAT_CONFIGS[citationFormat].label}
                       </p>
                       <p
                         className="text-sm text-gray-800 dark:text-gray-200 font-serif"
                         style={{ paddingLeft: '2em', textIndent: '-2em' }}
                       >
-                        {formatter.formatReferenceJSX(ref)}
+                        {formatter.formatReferenceJSX(ref, language)}
                       </p>
                     </div>
                   </div>

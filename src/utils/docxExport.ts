@@ -20,6 +20,10 @@ import type { CoverPage } from "../interfaces/ICoverPage";
 
 const margin = convertInchesToTwip(1);
 
+import { es, en } from "../i18n";
+
+const tText = (key: keyof typeof es, lang?: string): string => ((lang === 'en' ? en[key] : es[key]) ?? es[key]) as string;
+
 // ─── Helper: empty lines (spacer) ──────────────────────────────────────────────
 const emptyLine = () =>
   new Paragraph({ children: [new TextRun({ text: '' })], spacing: { line: 480 } });
@@ -134,15 +138,16 @@ const buildRichReferenceParagraph = (
   ref: Reference,
   formatter: ICitationFormatter,
   index: number,
+  lang?: string
 ): Paragraph => {
-  const author = ref.author || "[Autor]";
-  const year = getYear(ref.year);
-  const title = ref.title || "[Título]";
+  const author = ref.author || tText("unknownAuthor", lang);
+  const year = getYear(ref.year, lang);
+  const title = ref.title || tText("unknownTitle", lang);
 
   // IEEE uses a plain numbered run
   if (formatter.sortMode === "appearance") {
     return new Paragraph({
-      children: [new TextRun({ text: `[${index}] ${formatter.formatReference(ref)}` })],
+      children: [new TextRun({ text: `[${index}] ${formatter.formatReference(ref, lang)}` })],
       indent: { left: convertInchesToTwip(0.5), hanging: convertInchesToTwip(0.5) },
       spacing: { line: 480 },
     });
@@ -156,19 +161,19 @@ const buildRichReferenceParagraph = (
       elements = [
         new TextRun({ text: `${author} (${year}). ` }),
         new TextRun({ text: `${title}. `, italics: true }),
-        new TextRun({ text: `${ref.publisher || "[Editorial]"}.` }),
+        new TextRun({ text: `${ref.publisher || `[${tText('publisher', lang)}]`}.` }),
       ];
       break;
 
     case "article": {
-      const journal = ref.journal || "[Revista]";
-      const volume = ref.volume || "[Volumen]";
+      const journal = ref.journal || `[${tText('journalName', lang)}]`;
+      const volume = ref.volume || `[${tText('volume', lang)}]`;
       const issue = ref.issue ? `(${ref.issue})` : "";
       const pages = ref.pages ? `, ${ref.pages}` : "";
       // Derive DOI text from the plain formatter output to respect APA6/7 difference
       let doi = "";
       if (ref.doi) {
-        const plain = formatter.formatReference(ref);
+        const plain = formatter.formatReference(ref, lang);
         const doiIdx = plain.lastIndexOf(" doi:");
         const urlIdx = plain.lastIndexOf(" https://doi.org/");
         if (doiIdx !== -1) doi = plain.slice(doiIdx);
@@ -185,7 +190,7 @@ const buildRichReferenceParagraph = (
     }
 
     case "website": {
-      const plain = formatter.formatReference(ref);
+      const plain = formatter.formatReference(ref, lang);
       // Everything after "title." portion
       const afterTitle = plain.slice(plain.indexOf(title) + title.length + 2);
       elements = [
@@ -197,7 +202,7 @@ const buildRichReferenceParagraph = (
     }
 
     case "video": {
-      const plain = formatter.formatReference(ref);
+      const plain = formatter.formatReference(ref, lang);
       const afterTitle = plain.slice(plain.indexOf(title) + title.length + 1);
       elements = [
         new TextRun({ text: `${author} (${year}). ` }),
@@ -208,7 +213,7 @@ const buildRichReferenceParagraph = (
     }
 
     default:
-      elements = [new TextRun({ text: formatter.formatReference(ref) })];
+      elements = [new TextRun({ text: formatter.formatReference(ref, lang) })];
   }
 
   return new Paragraph({
@@ -228,6 +233,7 @@ export const exportToDocx = async (
   references: Reference[],
   suggestedName = "File_Normalizate_APA",
   formatter: ICitationFormatter = apa7Formatter,
+  lang?: string,
   coverPage?: CoverPage,
 ) => {
   // ── Sort references according to formatter's sort mode ─────────────────────
@@ -292,7 +298,7 @@ export const exportToDocx = async (
         updatedRuns = updatedRuns.map((r) => ({ ...r, highlighted: true }));
         if (ref) {
           const idx = refIndexMap.get(ref.id);
-          const citationText = formatter.formatInTextCitation(ref, idx);
+          const citationText = formatter.formatInTextCitation(ref, idx, lang);
           if (citationText) {
             updatedRuns.push({ text: citationText, highlighted: false });
           }
@@ -477,7 +483,7 @@ export const exportToDocx = async (
         children: [
           new Paragraph({
             children: [
-              new TextRun({ text: formatter.sectionHeading, bold: true }),
+              new TextRun({ text: formatter.sectionHeading(lang), bold: true }),
             ],
             heading: HeadingLevel.HEADING_1,
             alignment: AlignmentType.CENTER,
@@ -485,9 +491,9 @@ export const exportToDocx = async (
           }),
           ...(sortedRefs.length > 0
             ? sortedRefs.map((ref, i) =>
-                buildRichReferenceParagraph(ref, formatter, i + 1),
+                buildRichReferenceParagraph(ref, formatter, i + 1, lang),
               )
-            : [new Paragraph({ text: "No hay referencias." })]),
+            : [new Paragraph({ text: tText('noReferences', lang) })]),
         ],
       },
     ],

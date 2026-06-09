@@ -8,6 +8,7 @@ export { useDocument } from "./DocumentContext";
 export { useReferences } from "./ReferencesContext";
 export { useExport } from "./ExportContext";
 export { useCitationFormat } from "./CitationFormatContext";
+export { useLanguage } from "./LanguageContext";
 export { useCoverPage } from "./CoverPageContext";
 
 // Cargamos los proveedores a demanda (Lazy Loading)
@@ -17,10 +18,12 @@ const ReferencesProvider = React.lazy(() => import("./ReferencesContext"));
 const ExportProvider = React.lazy(() => import("./ExportContext"));
 const ConfigProvider = React.lazy(() => import("./ConfigContext"));
 const CitationFormatProvider = React.lazy(() => import("./CitationFormatContext"));
+import { LanguageProvider } from "./LanguageContext";
 const CoverPageProvider = React.lazy(() => import("./CoverPageContext"));
 
 // Lista plana de proveedores (El orden importa: de más global a más específico)
 const providers = [
+  LanguageProvider,
   ConfigProvider,
   ThemeProvider,
   CitationFormatProvider,

@@ -1,6 +1,7 @@
 import React from 'react';
 import type { CoverPage } from '@/interfaces/ICoverPage';
 import type { CitationFormat } from '@/utils/citationFormats';
+import { useLanguage } from '@/context/AppContext';
 
 interface CoverPagePreviewProps {
   coverPage: CoverPage;
@@ -22,6 +23,7 @@ interface CoverPagePreviewProps {
 const CoverPagePreview: React.FC<CoverPagePreviewProps> = ({ coverPage, citationFormat }) => {
   const isIEEE = citationFormat === 'ieee';
   const isAPA = !isIEEE;
+  const { t } = useLanguage();
 
   const hasContent =
     coverPage.title.trim() ||
@@ -31,7 +33,7 @@ const CoverPagePreview: React.FC<CoverPagePreviewProps> = ({ coverPage, citation
   return (
     <div className="flex flex-col items-center">
       <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">
-        Vista previa
+        {t('preview')}
       </p>
 
       {/* A4 page simulation */}
@@ -39,7 +41,7 @@ const CoverPagePreview: React.FC<CoverPagePreviewProps> = ({ coverPage, citation
         className="w-full max-w-[260px] bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-700
                    rounded-lg shadow-md overflow-hidden relative"
         style={{ aspectRatio: '210 / 297' }}
-        aria-label="Vista previa de portada"
+        aria-label={t('preview')}
       >
         {hasContent ? (
           <div className="flex flex-col h-full">
@@ -129,7 +131,7 @@ const CoverPagePreview: React.FC<CoverPagePreviewProps> = ({ coverPage, citation
             <div className="w-16 h-0.5 bg-gray-200 dark:bg-gray-700 rounded" />
             <div className="w-10 h-0.5 bg-gray-200 dark:bg-gray-700 rounded" />
             <p className="text-gray-400 dark:text-gray-600 text-center mt-3" style={{ fontSize: '0.48rem' }}>
-              Completa los campos para ver la vista previa
+              {t('fillFieldsToPreview')}
             </p>
           </div>
         )}
@@ -138,7 +140,7 @@ const CoverPagePreview: React.FC<CoverPagePreviewProps> = ({ coverPage, citation
       {/* APA layout hint */}
       {hasContent && isAPA && (
         <p className="mt-1.5 text-gray-400 dark:text-gray-600 text-center leading-tight" style={{ fontSize: '0.6rem' }}>
-          Título: mitad superior · Pág. 1 en encabezado
+          {t('apaHint')}
         </p>
       )}
 
