@@ -6,14 +6,127 @@ import {
   HeadingLevel,
   AlignmentType,
   convertInchesToTwip,
+  PageBreak,
+  Header,
+  PageNumber,
+  NumberFormat,
 } from "docx";
 import { saveAs } from "file-saver";
 import type { Reference } from "../components/References/ReferencesManager";
 import { getYear } from "../components/References/ReferencesManager";
 import type { ICitationFormatter } from "./citationFormats/types";
 import { apa7Formatter } from "./citationFormats/apa7.tsx";
+import type { CoverPage } from "../interfaces/ICoverPage";
 
 const margin = convertInchesToTwip(1);
+
+// ─── Helper: empty lines (spacer) ──────────────────────────────────────────────
+const emptyLine = () =>
+  new Paragraph({ children: [new TextRun({ text: '' })], spacing: { line: 480 } });
+
+// ─── Cover page builder ────────────────────────────────────────────────────────
+/**
+ * Builds the cover page paragraphs following each format's standard.
+ * APA 7 / APA 6: centred, double-spaced, upper half for title block.
+ * IEEE: centred, compact.
+ */
+const buildCoverPageChildren = (
+  cover: CoverPage,
+  formatterSortMode: ICitationFormatter['sortMode'],
+): Paragraph[] => {
+  const isIEEE = formatterSortMode === 'appearance';
+  const bold = (text: string, size = 24) =>
+    new TextRun({ text, bold: true, size });
+  const normal = (text: string, size = 24) =>
+    new TextRun({ text, size });
+  const centred = (children: TextRun[], spacingBefore = 0): Paragraph =>
+    new Paragraph({
+      children,
+      alignment: AlignmentType.CENTER,
+      spacing: { line: 480, before: spacingBefore },
+    });
+
+  if (isIEEE) {
+    // ── IEEE Cover Page ──────────────────────────────────────────────────────
+    return [
+      emptyLine(), emptyLine(), emptyLine(), emptyLine(), emptyLine(),
+      emptyLine(), emptyLine(), emptyLine(),
+      centred([bold(cover.title.toUpperCase(), 28)]),
+      emptyLine(), emptyLine(),
+      centred([normal(cover.authors)]),
+      emptyLine(),
+      ...(cover.institution ? [centred([normal(cover.institution)])] : []),
+      ...(cover.faculty ? [centred([normal(cover.faculty)])] : []),
+      emptyLine(),
+      ...(cover.city ? [centred([normal(cover.city)])] : []),
+      centred([normal(cover.date)]),
+      new Paragraph({
+        children: [new PageBreak()],
+      }),
+    ];
+  }
+
+  // ── APA 7 / APA 6 Cover Page ────────────────────────────────────────────────
+  // Per APA 7 manual §2.3:
+  //   - Title must appear in the UPPER HALF of the page (roughly top third).
+  //   - All text centred, double-spaced.
+  //   - Page number 1 appears in the header (top-right), added via the section header.
+  //
+  // We use convertInchesToTwip to push the title block to ~3.5" from the top
+  // (upper half of an 8.5"×11" or A4 page with 1" margins = usable height ~9").
+  const children: Paragraph[] = [
+    // Three double-spaced blank lines ≈ positions title at ~top third
+    emptyLine(), emptyLine(), emptyLine(),
+  ];
+
+  // Título (y subtítulo opcional)
+  children.push(centred([bold(cover.title, 26)]));
+  if (cover.subtitle?.trim()) {
+    children.push(emptyLine());
+    children.push(centred([normal(cover.subtitle, 24)]));
+  }
+
+  children.push(emptyLine(), emptyLine());
+
+  // Autor(es)
+  if (cover.authors?.trim()) {
+    children.push(centred([normal(cover.authors)]));
+  }
+
+  // Institución y Facultad
+  if (cover.institution?.trim()) {
+    children.push(centred([normal(cover.institution)]));
+  }
+  if (cover.faculty?.trim()) {
+    children.push(centred([normal(cover.faculty)]));
+  }
+
+  children.push(emptyLine());
+
+  // Curso y Docente (APA)
+  if (cover.course?.trim()) {
+    children.push(centred([normal(cover.course)]));
+  }
+  if (cover.teacher?.trim()) {
+    children.push(centred([normal(cover.teacher)]));
+  }
+
+  // Ciudad y Fecha
+  if (cover.city?.trim()) {
+    const dateText = cover.date?.trim()
+      ? `${cover.city}, ${cover.date}`
+      : cover.city;
+    children.push(centred([normal(dateText)]));
+  } else if (cover.date?.trim()) {
+    children.push(centred([normal(cover.date)]));
+  }
+
+  // Page break at the end
+  children.push(new Paragraph({ children: [new PageBreak()] }));
+
+  return children;
+};
+
 
 // ─── Rich reference paragraph builder for DOCX ────────────────────────────────
 // Builds a Paragraph with hanging indent and proper italic runs.
@@ -115,6 +228,7 @@ export const exportToDocx = async (
   references: Reference[],
   suggestedName = "File_Normalizate_APA",
   formatter: ICitationFormatter = apa7Formatter,
+  coverPage?: CoverPage,
 ) => {
   // ── Sort references according to formatter's sort mode ─────────────────────
   let sortedRefs: Reference[];
@@ -260,6 +374,40 @@ export const exportToDocx = async (
 
   // ── Build DOCX document ────────────────────────────────────────────────────
 
+  // Build cover page section if enabled
+  // APA 7 §2.3: page number appears top-right on the cover page itself (page 1).
+  const apaPageNumberHeader = new Header({
+    children: [
+      new Paragraph({
+        children: [
+          new TextRun({
+            children: [PageNumber.CURRENT],
+          }),
+        ],
+        alignment: AlignmentType.RIGHT,
+      }),
+    ],
+  });
+
+  const coverSection = coverPage?.enabled
+    ? [
+        {
+          properties: {
+            type: "nextPage" as const,
+            page: {
+              margin: { top: margin, right: margin, bottom: margin, left: margin },
+              pageNumbers: { start: 1, formatType: NumberFormat.DECIMAL },
+            },
+          },
+          // APA 7: header with page number top-right; IEEE has no running header
+          headers: formatter.sortMode !== 'appearance'
+            ? { default: apaPageNumberHeader }
+            : undefined,
+          children: buildCoverPageChildren(coverPage, formatter.sortMode),
+        },
+      ]
+    : [];
+
   const doc = new Document({
     styles: {
       default: {
@@ -310,6 +458,7 @@ export const exportToDocx = async (
       ],
     },
     sections: [
+      ...coverSection,
       {
         properties: {
           page: {
