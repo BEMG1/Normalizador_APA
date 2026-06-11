@@ -2,10 +2,11 @@ import { useState } from "react";
 import AppProviders from "@/context/AppContext";
 import Header from "@/components/Layout/Header";
 import DocumentEditor from "@/components/documentEditor/DocumentEditor";
+import DocumentTitle from "@/components/documentEditor/DocumentTitle";
 import ReferencesManager from "@/components/References/ReferencesManager";
 import ExportWarningModal from "@/components/documentEditor/ExportWarningModal";
 import CoverPageForm from "@/components/CoverPage/CoverPageForm";
-import { FileText, BookOpen, FileImage } from "lucide-react";
+import { BookOpen, FileImage } from "lucide-react";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { SupportWidget } from "@/components/Support/SupportWidget";
 import { useLanguage } from "@/context/AppContext";
@@ -79,8 +80,7 @@ function RightPanel() {
 
 // ─── App content ───────────────────────────────────────────────────────────────
 
-function AppContent() {
-  const { t } = useLanguage();
+function AppContent() {  
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col">
@@ -91,15 +91,12 @@ function AppContent() {
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col lg:flex-row gap-8">
 
         {/* Left column — Document editor */}
-        <div className="w-full lg:w-3/5 flex flex-col gap-4">
-          <div className="bg-white dark:bg-gray-900 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-800 flex-1 flex flex-col">
-            <div className="flex items-center space-x-2 mb-4 border-b border-gray-200 dark:border-gray-700 pb-2">
-              <FileText className="h-5 w-5 text-gray-500 dark:text-gray-400" />
-              <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100">
-                {t('documentTitle')}
-              </h2>
+        <div className="w-full lg:w-3/5 relative min-h-[600px]">
+          <div className="lg:absolute lg:inset-0 flex flex-col h-full w-full">
+            <div className="bg-white dark:bg-gray-900 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-800 flex-1 flex flex-col min-h-0">
+              <DocumentTitle />
+              <DocumentEditor />
             </div>
-            <DocumentEditor />
           </div>
         </div>
 

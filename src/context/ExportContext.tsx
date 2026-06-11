@@ -10,7 +10,7 @@ import type { IExport } from "@/interfaces/IExport";
 const ExportContext = createContext<IExport | undefined>(undefined);
 
 const ExportProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const { documentText, uploadedFileName } = useDocument();
+  const { documentText, documentTitle } = useDocument();
   const { references } = useReferences();
   const { formatter } = useCitationFormat();
   const { coverPage } = useCoverPage();
@@ -24,18 +24,14 @@ const ExportProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     if (hasIncomplete) {
       setShowExportWarning(true);
     } else {
-      const suggestedName = uploadedFileName
-        ? `${uploadedFileName}_Normalizate_APA`
-        : "File_Normalizate_APA";
+      const suggestedName = `${documentTitle}_Citara` || "Document_Citara";
       exportToDocx(documentText, references, suggestedName, formatter, language, coverPage);
     }
   };
 
   const handleExportAnyway = async () => {
     setShowExportWarning(false);
-    const suggestedName = uploadedFileName
-      ? `${uploadedFileName}_Normalizate_APA`
-      : "File_Normalizate_APA";
+    const suggestedName = `${documentTitle}_Citara` || "Document_Citara";
     await exportToDocx(documentText, references, suggestedName, formatter, language, coverPage);
   };
 

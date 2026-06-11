@@ -6,9 +6,9 @@ const DocumentContext = createContext<IDocument | undefined>(undefined);
 
 const DocumentProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [documentText, setDocumentText] = useLocalStorage<string>("documentText", "");
-  const [uploadedFileName, setUploadedFileName] = useLocalStorage<string | null>(
-    "uploadedFileName",
-    null,
+  const [documentTitle, setDocumentTitle] = useLocalStorage<string>(
+    "documentTitle",
+    "Document_Citara",
   );
 
   const isExportDisabled = !documentText.trim();
@@ -17,11 +17,11 @@ const DocumentProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     () => ({
       documentText,
       setDocumentText,
-      uploadedFileName,
-      setUploadedFileName,
+      documentTitle,
+      setDocumentTitle,
       isExportDisabled,
     }),
-    [documentText, setDocumentText, uploadedFileName, setUploadedFileName, isExportDisabled]
+    [documentText, setDocumentText, documentTitle, setDocumentTitle, isExportDisabled]
   );
 
   return (
