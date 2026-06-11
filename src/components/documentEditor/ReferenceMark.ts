@@ -20,7 +20,7 @@ export const ReferenceMark = Mark.create<ReferenceMarkOptions>({
   addOptions() {
     return {
       HTMLAttributes: {
-        class: 'bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-200 px-1 py-0.5 rounded cursor-pointer transition-colors hover:bg-blue-200 dark:hover:bg-blue-800/60',
+        class: 'reference-mark',
       },
     };
   },

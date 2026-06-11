@@ -422,6 +422,103 @@ code {
 .btn-tool-idle:hover { background: var(--surface-2); color: var(--text) }
 .btn-tool-active { border-color: var(--accent); background: var(--accent-soft); color: var(--accent) }
 
+.input-nj {
+  width: 100%; padding: 6px 12px;
+  font-size: 0.875rem; border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text);
+  transition: border-color .15s, box-shadow .15s;
+  outline: none;
+}
+.input-nj::placeholder { color: var(--text-3); }
+.input-nj:focus { border-color: var(--accent); box-shadow: 0 0 0 2px var(--hl); }
+
+/* ── Animations ───────────────────────────────────────────────────────────── */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-6px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0)    scale(1);    }
+}
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.94); }
+  to   { opacity: 1; transform: scale(1);    }
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0);   }
+}
+
+.anim-fade-in   { animation: fadeIn   0.22s ease-out both; }
+.anim-slide-down { animation: slideDown 0.18s cubic-bezier(0.16,1,0.3,1) both; }
+.anim-scale-in  { animation: scaleIn  0.2s  cubic-bezier(0.16,1,0.3,1) both; }
+.anim-slide-up  { animation: slideUp  0.2s  ease-out both; }
+
+.anim-delay-1 { animation-delay: 60ms; }
+.anim-delay-2 { animation-delay: 120ms; }
+
+/* Button press feedback */
+.btn-nj:active  { transform: scale(0.97); }
+.ib-nj:active   { transform: scale(0.90); }
+.btn-tool-idle:active, .btn-tool-active:active { transform: scale(0.95); }
+
+/* ── Calendar (DatePickerField) ───────────────────────────────────────────── */
+.cal-nav-btn {
+  padding: 6px; border-radius: 8px; color: var(--text-2);
+  background: transparent; transition: background .15s, color .15s;
+}
+.cal-nav-btn:hover { background: var(--surface-2); color: var(--text); }
+
+.cal-select, .cal-year-input {
+  background: transparent; border: none; outline: none;
+  font-size: 0.875rem; font-weight: 600; color: var(--text);
+  cursor: pointer; transition: color .15s;
+}
+.cal-select:hover, .cal-year-input:hover { color: var(--accent); }
+.cal-year-input {
+  width: 4rem; text-align: center;
+  appearance: textfield; -moz-appearance: textfield;
+}
+.cal-year-input::-webkit-inner-spin-button,
+.cal-year-input::-webkit-outer-spin-button { appearance: none; }
+
+.cal-day {
+  position: relative; display: flex; align-items: center; justify-content: center;
+  height: 2rem; width: 100%; border-radius: 8px;
+  font-size: 0.875rem; font-weight: 500; color: var(--text);
+  background: transparent; transition: background .1s, color .1s;
+}
+.cal-day:hover { background: var(--hl); color: var(--accent); }
+.cal-day-selected { background: var(--accent) !important; color: #0F0B1E !important; font-weight: 600; }
+.cal-day-today { color: var(--accent); font-weight: 700; }
+
+.cal-clear-btn {
+  padding: 2px; border-radius: 4px; color: var(--text-3);
+  transition: background .15s, color .15s;
+}
+.cal-clear-btn:hover { background: var(--surface-3); color: var(--text); }
+
+.cal-today-btn {
+  width: 100%; font-size: 0.75rem; text-align: center;
+  color: var(--accent); font-weight: 500;
+  padding: 4px; border-radius: 8px;
+  transition: background .15s;
+}
+.cal-today-btn:hover { background: var(--hl); }
+
+.reference-mark {
+  background: var(--hl);
+  color: var(--accent);
+  padding: 0 3px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: background .15s;
+}
+.reference-mark:hover { background: rgba(245,185,66,.35); }
+
 .ib-nj {
   width: 32px; height: 32px;
   display: grid; place-items: center;

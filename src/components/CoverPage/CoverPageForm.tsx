@@ -98,7 +98,7 @@ const FormField: React.FC<FormFieldProps> = ({ id, def, value, onChange, t }) =>
     >
       {t(def.labelKey) as string}
       {def.required && (
-        <span className="text-red-500 text-xs" aria-label="campo obligatorio">*</span>
+        <span className="text-xs" style={{ color: 'var(--err)' }} aria-label="campo obligatorio">*</span>
       )}
       {def.hintKey && (
         <Tooltip>

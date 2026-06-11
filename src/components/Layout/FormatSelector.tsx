@@ -55,7 +55,7 @@ export const FormatSelector: React.FC = () => {
       </Tooltip>
 
       {isFormatDropdownOpen && (
-        <div className="absolute right-0 mt-2 w-72 rounded-xl z-50 overflow-hidden" style={{ background: 'var(--surface)', border: '1px solid var(--border)', boxShadow: 'var(--shadow-popover)' }}>
+        <div className="absolute right-0 mt-2 w-72 rounded-xl z-50 overflow-hidden anim-slide-down" style={{ background: 'var(--surface)', border: '1px solid var(--border)', boxShadow: 'var(--shadow-popover)' }}>
           <div className="px-4 py-2.5" style={{ background: 'var(--surface-2)', borderBottom: '1px solid var(--border)' }}>
             <p className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--text-3)', fontFamily: 'var(--mono-font)' }}>
               {t('formatSelectorTitle')}

@@ -103,7 +103,7 @@ function AppContent() {
         </div>
 
         {/* Right column — Tabbed panel (References | Cover Page) */}
-        <div className="w-full lg:w-2/5 flex flex-col gap-4">
+        <div className="w-full lg:w-2/5 flex flex-col gap-4 anim-fade-in anim-delay-1">
           <RightPanel />
         </div>
       </main>

@@ -145,7 +145,7 @@ const DatePickerField: React.FC<DatePickerFieldProps> = ({
       >
         {label}
         {required && (
-          <span className="text-red-500 text-xs" aria-label="campo obligatorio">*</span>
+          <span className="text-xs" style={{ color: 'var(--err)' }} aria-label="campo obligatorio">*</span>
         )}
       </label>
 
@@ -207,7 +207,6 @@ const DatePickerField: React.FC<DatePickerFieldProps> = ({
             </button>
 
             <div className="flex items-center gap-1.5">
-              {/* Month selector */}
               <select
                 value={viewMonth}
                 onChange={(e) => setViewMonth(Number(e.target.value))}
@@ -222,7 +221,6 @@ const DatePickerField: React.FC<DatePickerFieldProps> = ({
                 ))}
               </select>
 
-              {/* Year input */}
               <input
                 type="number"
                 value={viewYear}
@@ -265,9 +263,7 @@ const DatePickerField: React.FC<DatePickerFieldProps> = ({
           {/* Day grid */}
           <div className="grid grid-cols-7 gap-y-0.5">
             {calendarDays.map((day, idx) => {
-              if (!day) {
-                return <div key={`empty-${idx}`} />;
-              }
+              if (!day) return <div key={`empty-${idx}`} />;
               const isSelected = selected ? isSameDay(day, selected) : false;
               const isTodayDay = isToday(day);
 
@@ -289,7 +285,6 @@ const DatePickerField: React.FC<DatePickerFieldProps> = ({
                   style={isSelected ? { background: 'var(--accent)', color: 'var(--bg)' } : {}}
                 >
                   {day.getDate()}
-                  {/* Today indicator dot */}
                   {isTodayDay && !isSelected && (
                     <span className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full" style={{ background: 'var(--accent)' }} />
                   )}
