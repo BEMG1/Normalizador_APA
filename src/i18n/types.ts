@@ -164,4 +164,22 @@ export interface TranslationDictionary {
   unknownAuthor: string;
   unknownTitle: string;
   incompleteReferenceFallback: string;
+
+  // Support Form
+  supportTitle: string;
+  supportSpamWarning: string;
+  supportError: string;
+  supportType: string;
+  supportDescription: string;
+  supportDescriptionPlaceholder: string;
+  supportSending: string;
+  supportSend: string;
+  supportSuccessTitle: string;
+  supportSuccessMsg: string;
+  supportReqBug: string;
+  supportReqSupport: string;
+  supportReqSuggestion: string;
+  supportReqFeature: string;
+  supportReqGeneral: string;
+  supportReqOther: string;
 }
