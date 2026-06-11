@@ -10,11 +10,8 @@ export const ThemeToggle: React.FC = () => {
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <button
-          onClick={toggleDarkMode}
-          className="p-2 rounded-md text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-        >
-          {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+        <button onClick={toggleDarkMode} className="ib-nj">
+          {isDark ? <Sun size={15} strokeWidth={1.6} /> : <Moon size={15} strokeWidth={1.6} />}
         </button>
       </TooltipTrigger>
       <TooltipContent>

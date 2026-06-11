@@ -1,18 +1,104 @@
 @import "tailwindcss";
 @variant dark (&:where(.dark, .dark *));
 
+/* ============================================================
+   DESIGN TOKENS — NORME JE
+   ============================================================ */
+
+/* Modo claro (base) */
+:root {
+  /* Tipografía — siempre presente */
+  --brand-font: 'DM Serif Display', Georgia, serif;
+  --ui-font:    'Outfit', system-ui, sans-serif;
+  --doc-font:   'Newsreader', Georgia, serif;
+  --mono-font:  'JetBrains Mono', ui-monospace, monospace;
+  --radius: 10px;
+
+  /* Fondos */
+  --bg:          #F5F3FF;
+  --surface:     #FFFFFF;
+  --surface-2:   #EEEAF8;
+  --surface-3:   #E3DFF2;
+  --sidebar:     #EDE9FF;
+
+  /* Bordes */
+  --border:      #D4D0E8;
+  --border-soft: #E3DFF2;
+
+  /* Texto */
+  --text:        #18143A;
+  --text-2:      #5A5290;
+  --text-3:      #9A90C9;
+
+  /* Acento — Ámbar oscurecido para contraste sobre claro */
+  --accent:      #C9920A;
+  --accent-soft: rgba(201, 146, 10, 0.1);
+
+  /* Estados */
+  --ok:          #059669;
+  --warn:        #D97706;
+  --err:         #DC2626;
+
+  /* Documento A4 */
+  --paper:       #FFFFFF;
+  --paper-ink:   #18143A;
+  --paper-muted: #9A90C9;
+  --hl:          rgba(201, 146, 10, 0.18);
+
+  /* Sombras */
+  --shadow-paper:   0 1px 0 rgba(0,0,0,.04), 0 10px 24px -12px rgba(0,0,0,.12);
+  --shadow-popover: 0 20px 40px -10px rgba(0,0,0,.2);
+}
+
+/* Modo oscuro — Paleta Citara principal */
+.dark {
+  /* Fondos */
+  --bg:          #0F0B1E;
+  --surface:     #18143A;
+  --surface-2:   #221E4A;
+  --surface-3:   #2E2860;
+  --sidebar:     #080519;
+
+  /* Bordes */
+  --border:      #2E2860;
+  --border-soft: #221E4A;
+
+  /* Texto */
+  --text:        #EDE9FF;
+  --text-2:      #9A90C9;
+  --text-3:      #5A5290;
+
+  /* Acento — Ámbar */
+  --accent:      #F5B942;
+  --accent-soft: rgba(245, 185, 66, 0.13);
+
+  /* Estados */
+  --ok:          #34D399;
+  --warn:        #FBBF24;
+  --err:         #F87171;
+
+  /* Documento A4 */
+  --paper:       #FBF9F5;
+  --paper-ink:   #18143A;
+  --paper-muted: #9A90C9;
+  --hl:          rgba(245, 185, 66, 0.22);
+
+  /* Sombras */
+  --shadow-paper:   0 1px 0 rgba(0,0,0,.12), 0 14px 32px -10px rgba(0,0,0,.6);
+  --shadow-popover: 0 20px 40px -10px rgba(0,0,0,.7);
+}
+
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family: var(--ui-font);
+  background: var(--bg);
+  color: var(--text);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+  font-family: var(--mono-font);
 }
 
 /* Custom UI Scrollbar (scrollbar-thin) */
@@ -25,28 +111,27 @@ code {
   border-radius: 8px;
 }
 .scrollbar-thin::-webkit-scrollbar-thumb {
-  background: #cbd5e1; /* Tailwind slate-300 */
+  background: var(--border);
   border-radius: 8px;
 }
 .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8; /* Tailwind slate-400 */
+  background: var(--text-3);
 }
 
-/* Dark mode support for scrollbar */
 .dark .scrollbar-thin::-webkit-scrollbar-thumb {
-  background: #475569; /* Tailwind slate-600 */
+  background: var(--surface-3);
 }
 .dark .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-  background: #64748b; /* Tailwind slate-500 */
+  background: var(--border);
 }
 
 .scrollbar-thin {
   scrollbar-width: thin;
-  scrollbar-color: #cbd5e1 transparent;
+  scrollbar-color: var(--border) transparent;
 }
 
 .dark .scrollbar-thin {
-  scrollbar-color: #475569 transparent;
+  scrollbar-color: var(--surface-3) transparent;
 }
 
 /* 
@@ -113,11 +198,66 @@ code {
   cursor: url('/Normalizador_APA/images/paw.png'), pointer;
 }
 
+/* ─── TOKEN UTILITIES ────────────────────────────── */
+.nj-bg          { background: var(--bg) }
+.nj-surface     { background: var(--surface) }
+.nj-surface-2   { background: var(--surface-2) }
+.nj-surface-3   { background: var(--surface-3) }
+.nj-text        { color: var(--text) }
+.nj-text-2      { color: var(--text-2) }
+.nj-text-3      { color: var(--text-3) }
+.nj-accent      { color: var(--accent) }
+.nj-ok          { color: var(--ok) }
+.nj-warn        { color: var(--warn) }
+.nj-err         { color: var(--err) }
+.nj-border      { border-color: var(--border) }
+.nj-border-soft { border-color: var(--border-soft) }
+.nj-bg-accent-s { background: var(--accent-soft) }
+.nj-bg-err-s    { background: rgba(239,122,122,.08) }
+.nj-bg-warn-s   { background: rgba(230,184,107,.08) }
+
+/* ─── BUTTON TOKENS ──────────────────────────────── */
+.btn-nj {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 6px 12px;
+  border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text);
+  font-family: var(--ui-font); font-size: 13px; font-weight: 500;
+  cursor: pointer; white-space: nowrap;
+  transition: border-color .15s, opacity .15s;
+}
+.btn-nj:hover { border-color: var(--text-3) }
+.btn-nj.primary { background: var(--text); color: var(--bg); border-color: var(--text) }
+.btn-nj.primary:hover { opacity: .85 }
+.btn-nj.primary:disabled { opacity: .35; cursor: not-allowed }
+.btn-nj.accent { background: var(--accent-soft); color: var(--accent); border-color: var(--accent) }
+.btn-nj.sm { padding: 4px 10px; font-size: 12px }
+.btn-nj.ghost { background: transparent; border-color: transparent }
+.btn-nj.ghost:hover { background: var(--surface-3); border-color: var(--border) }
+
+.btn-tool-idle  { border-color: var(--border); background: var(--surface); color: var(--text-2) }
+.btn-tool-idle:hover { background: var(--surface-2); color: var(--text) }
+.btn-tool-active { border-color: var(--accent); background: var(--accent-soft); color: var(--accent) }
+
+.ib-nj {
+  width: 32px; height: 32px;
+  display: grid; place-items: center;
+  border: 1px solid transparent; border-radius: 8px;
+  background: transparent; color: var(--text-2); cursor: pointer;
+  transition: background .15s, color .15s;
+}
+.ib-nj:hover { background: var(--surface-3); color: var(--text) }
+.ib-nj svg { width: 15px; height: 15px }
+
 /* Editor (ProseMirror) APA Styling */
 .ProseMirror {
-  padding: 2rem;
+  padding: 28px 36px;
   outline: none;
   min-height: 500px;
+  font-family: var(--doc-font);
+  font-size: 15.5px;
+  line-height: 1.7;
+  color: var(--text);
 }
 .ProseMirror h1 {
   text-align: center;

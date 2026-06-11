@@ -8,7 +8,7 @@ export const es: TranslationDictionary = {
   warning: 'Advertencia',
   copied: '¡Copiado!',
 
-  appTitle: 'Normy',
+  appTitle: 'Citara',
   appSubtitle: 'Generador y formateador de textos académicos',
   themeToggleLight: 'Cambiar a modo claro',
   themeToggleDark: 'Cambiar a modo oscuro',
