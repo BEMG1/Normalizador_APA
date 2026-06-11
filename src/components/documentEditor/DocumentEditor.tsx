@@ -12,7 +12,7 @@ const DocumentEditor: React.FC = () => {
   const {
     documentText: text,
     setDocumentText: setText,
-    setUploadedFileName: onFileNameChange,
+    setDocumentTitle: onTitleChange,
   } = useDocument();
   const { references } = useReferences();
   const { t, language } = useLanguage();
@@ -123,11 +123,14 @@ const DocumentEditor: React.FC = () => {
     };
   }, [isDropdownOpen]);
 
+  const [, setForceUpdate] = useState({});
+
   // Close dropdown when selection changes
   useEffect(() => {
     if (!editor) return;
     const handleSelectionUpdate = () => {
       setIsDropdownOpen(false);
+      setForceUpdate({});
     };
     editor.on('selectionUpdate', handleSelectionUpdate);
     return () => {
@@ -164,7 +167,7 @@ const DocumentEditor: React.FC = () => {
       }
       
       const baseName = file.name.slice(0, -5); // remove '.docx'
-      onFileNameChange?.(baseName);
+      onTitleChange?.(baseName);
     } catch (error) {
       console.error('Error extracting text from Word document', error);
       alert(t('errorReadingWord'));
@@ -195,7 +198,7 @@ const DocumentEditor: React.FC = () => {
         editor.commands.clearContent();
       }
       setText('');
-      onFileNameChange?.(null);
+      onTitleChange?.("Document_Citara");
     }
   };
 
@@ -213,7 +216,7 @@ const DocumentEditor: React.FC = () => {
   const isActiveRef = editor.isActive('reference');
 
   return (
-    <div className="flex flex-col h-full flex-1 relative" ref={editorContainerRef}>
+    <div className="flex flex-col h-full flex-1 min-h-0 relative" ref={editorContainerRef}>
       {/* Tooltip Quick View */}
       {hoverInfo && (
         <div

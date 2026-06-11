@@ -156,4 +156,22 @@ export const en: TranslationDictionary = {
   unknownAuthor: 'Unknown author',
   unknownTitle: '[Title]',
   incompleteReferenceFallback: 'Incomplete reference',
+
+  // Support Form
+  supportTitle: 'Support and Feedback',
+  supportSpamWarning: 'To avoid spam, you can send a new message in {0} minute(s).',
+  supportError: 'There was a problem sending your message. Please try again later.',
+  supportType: 'Request type',
+  supportDescription: 'Description',
+  supportDescriptionPlaceholder: 'Tell us more about it...',
+  supportSending: 'Sending...',
+  supportSend: 'Send',
+  supportSuccessTitle: 'Message sent!',
+  supportSuccessMsg: 'Thank you for helping us improve the platform.',
+  supportReqBug: 'Bug report',
+  supportReqSupport: 'Support request',
+  supportReqSuggestion: 'Improvement suggestion',
+  supportReqFeature: 'Feature request',
+  supportReqGeneral: 'General comment',
+  supportReqOther: 'Other',
 };

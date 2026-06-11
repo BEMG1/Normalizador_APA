@@ -2,12 +2,13 @@ import { useState } from "react";
 import AppProviders from "@/context/AppContext";
 import Header from "@/components/Layout/Header";
 import DocumentEditor from "@/components/documentEditor/DocumentEditor";
+import DocumentTitle from "@/components/documentEditor/DocumentTitle";
 import ReferencesManager from "@/components/References/ReferencesManager";
 import ExportWarningModal from "@/components/documentEditor/ExportWarningModal";
 import CoverPageForm from "@/components/CoverPage/CoverPageForm";
-import { FileText, BookOpen, FileImage } from "lucide-react";
+import { BookOpen, FileImage } from "lucide-react";
 import { TooltipProvider } from "@/components/ui/tooltip";
-
+import { SupportWidget } from "@/components/Support/SupportWidget";
 import { useLanguage } from "@/context/AppContext";
 import { useCoverPage } from "@/context/AppContext";
 
@@ -82,28 +83,42 @@ function RightPanel() {
 
 // ─── App content ───────────────────────────────────────────────────────────────
 
-function AppContent() {
-  const { t } = useLanguage();
+function AppContent() {  
 
   return (
     <div className="min-h-screen flex flex-col" style={{ background: 'var(--bg)', color: 'var(--text)' }}>
       <ExportWarningModal />
       <Header />
+      <SupportWidget />
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col lg:flex-row gap-8">
 
-        {/* Left column — Document editor */}
-        <div className="w-full lg:w-3/5 flex flex-col gap-4">
-          <div className="p-6 rounded-lg flex-1 flex flex-col" style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}>
-            <div className="flex items-center space-x-2 mb-4 pb-2" style={{ borderBottom: '1px solid var(--border)' }}>
-              <FileText className="h-5 w-5" style={{ color: 'var(--text-3)' }} strokeWidth={1.6} />
-              <h2 className="text-lg font-medium" style={{ color: 'var(--text)', fontFamily: 'var(--ui-font)' }}>
-                {t('documentTitle')}
-              </h2>
-            </div>
-            <DocumentEditor />
-          </div>
-        </div>
+       <div className="w-full lg:w-3/5 flex flex-col gap-4">
+  <div 
+    className="p-6 rounded-lg flex-1 flex flex-col min-h-0" 
+    style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}
+  >
+    <div 
+      className="flex items-center space-x-2 mb-4 pb-2" 
+      style={{ borderBottom: '1px solid var(--border)' }}
+    >
+      <FileText 
+        className="h-5 w-5" 
+        style={{ color: 'var(--text-3)' }} 
+        strokeWidth={1.6} 
+      />
+      <h2 
+        className="text-lg font-medium" 
+        style={{ color: 'var(--text)', fontFamily: 'var(--ui-font)' }}
+      >
+        {t('documentTitle')}
+      </h2>
+    </div>
+
+    <DocumentTitle />
+    <DocumentEditor />
+  </div>
+</div>
 
         {/* Right column — Tabbed panel (References | Cover Page) */}
         <div className="w-full lg:w-2/5 flex flex-col gap-4">
