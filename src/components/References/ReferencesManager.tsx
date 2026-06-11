@@ -93,28 +93,24 @@ interface FieldProps {
 
 const Field: React.FC<FieldProps> = ({ label, hint, value, onChange, placeholder, colSpan, error }) => (
   <div className={colSpan ? 'sm:col-span-2' : ''}>
-    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+    <label className="block text-sm font-medium mb-1" style={{ color: 'var(--text-2)', fontFamily: 'var(--ui-font)' }}>
       {label}
-      {hint && (
-        <span className="text-xs text-gray-500 dark:text-gray-400 font-normal ml-1">{hint}</span>
-      )}
+      {hint && <span className="text-xs font-normal ml-1" style={{ color: 'var(--text-3)' }}>{hint}</span>}
     </label>
     <input
       type="text"
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className={`block w-full sm:text-sm border rounded-md px-3 py-2 outline-none transition-colors ${
-        error
-          ? 'border-red-300 dark:border-red-800 focus:ring-2 focus:ring-red-500 focus:border-red-500 bg-red-50/10 dark:bg-red-950/10 text-gray-900 dark:text-gray-100'
-          : 'border-gray-300 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100'
-      }`}
+      className="block w-full sm:text-sm rounded-md px-3 py-2 outline-none transition-colors"
+      style={{
+        border: `1px solid ${error ? 'var(--err)' : 'var(--border)'}`,
+        background: 'var(--surface-2)',
+        color: 'var(--text)',
+        fontFamily: 'var(--ui-font)',
+      }}
       placeholder={placeholder}
     />
-    {error && (
-      <p className="mt-1 text-xs text-red-600 dark:text-red-400 font-medium animate-pulse">
-        {error}
-      </p>
-    )}
+    {error && <p className="mt-1 text-xs font-medium" style={{ color: 'var(--err)' }}>{error}</p>}
   </div>
 );
 
@@ -166,9 +162,12 @@ const ReferencesManager: React.FC = () => {
       <div className="flex gap-2 mb-4">
         <button
           onClick={addReference}
-          className="flex-1 flex justify-center items-center px-4 py-2 border-2 border-dashed border-gray-300 dark:border-gray-700 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 hover:border-gray-400 dark:hover:border-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+          className="flex-1 flex justify-center items-center px-4 py-2 text-sm font-medium rounded-md transition-colors"
+          style={{ border: '2px dashed var(--border)', background: 'var(--surface)', color: 'var(--text-2)', fontFamily: 'var(--ui-font)' }}
+          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--accent)'; (e.currentTarget as HTMLElement).style.color = 'var(--accent)'; }}
+          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--border)'; (e.currentTarget as HTMLElement).style.color = 'var(--text-2)'; }}
         >
-          <Plus className="h-5 w-5 mr-2 text-gray-400 dark:text-gray-500" />
+          <Plus size={16} strokeWidth={1.6} className="mr-2" style={{ color: 'var(--text-3)' }} />
           {t('addReference')}
         </button>
         {references.length > 1 && (
@@ -176,11 +175,8 @@ const ReferencesManager: React.FC = () => {
             <TooltipTrigger asChild>
               <button
                 onClick={() => setIsSorted(!isSorted)}
-                className={`flex items-center px-3 py-2 text-sm rounded-md border transition-colors ${
-                  isSorted
-                    ? 'bg-blue-50 dark:bg-blue-950 border-blue-300 dark:border-blue-700 text-blue-700 dark:text-blue-300'
-                    : 'border-gray-300 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800'
-                }`}
+                className="btn-nj sm"
+              style={isSorted ? { borderColor: 'var(--accent)', background: 'var(--accent-soft)', color: 'var(--accent)' } : {}}
               >
                 <ArrowUpDown className="h-4 w-4 mr-1.5" />
                 {t('sortAZ')}
@@ -194,15 +190,15 @@ const ReferencesManager: React.FC = () => {
       </div>
 
       {isSorted && (
-        <p className="text-xs text-blue-600 dark:text-blue-400 mb-3 text-center">
+        <p className="text-xs mb-3 text-center" style={{ color: 'var(--accent)', fontFamily: 'var(--mono-font)' }}>
           {t('showingExportOrder')}
         </p>
       )}
 
       <div className="flex-1 overflow-y-auto pr-1 space-y-3">
         {references.length === 0 ? (
-          <div className="text-center py-12 text-gray-400 dark:text-gray-600">
-            <BookOpen className="h-10 w-10 mx-auto mb-3 opacity-50" />
+          <div className="text-center py-12" style={{ color: 'var(--text-3)' }}>
+            <BookOpen size={36} strokeWidth={1.4} className="mx-auto mb-3 opacity-50" />
             <p className="text-sm">{t('noReferences')}</p>
             <p className="text-xs mt-1">{t('noReferencesHint')}</p>
           </div>
@@ -212,25 +208,25 @@ const ReferencesManager: React.FC = () => {
             return (
               <div
                 key={ref.id}
-                className={`border rounded-md overflow-hidden bg-white dark:bg-gray-900 shadow-sm ${
-                  isIncomplete
-                    ? 'border-amber-300 dark:border-amber-800'
-                    : 'border-gray-200 dark:border-gray-700'
-                }`}
+                className="rounded-md overflow-hidden"
+                style={{ border: `1px solid ${isIncomplete ? 'var(--warn)' : 'var(--border)'}`, background: 'var(--surface)' }}
               >
                 <div
-                  className="flex justify-between items-center px-4 py-3 bg-gray-50 dark:bg-gray-800/50 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                  className="flex justify-between items-center px-4 py-3 cursor-pointer transition-colors"
+                  style={{ background: 'var(--surface-2)' }}
+                  onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = 'var(--surface-3)'}
+                  onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'var(--surface-2)'}
                   onClick={() => setExpandedId(expandedId === ref.id ? null : ref.id)}
                 >
                   <div className="flex-1 truncate mr-2 min-w-0">
-                    <span className="font-medium text-sm text-gray-900 dark:text-gray-100 mr-2">
+                    <span className="font-medium text-sm mr-2" style={{ color: 'var(--text-3)', fontFamily: 'var(--mono-font)' }}>
                       #{index + 1}
                     </span>
-                    <span className="text-sm text-gray-600 dark:text-gray-400">
+                    <span className="text-sm" style={{ color: 'var(--text-2)' }}>
                       {ref.author ? `${ref.author} (${getYear(ref.year, language)})` : t('newReference')}
                     </span>
                     {isIncomplete && (
-                      <span className="ml-2 text-xs font-medium text-amber-600 dark:text-amber-400">
+                      <span className="ml-2 text-xs font-medium" style={{ color: 'var(--warn)' }}>
                         {t('incompleteRef')}
                       </span>
                     )}
@@ -238,50 +234,41 @@ const ReferencesManager: React.FC = () => {
                   <div className="flex items-center space-x-1 shrink-0">
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <button
-                          onClick={(e) => { e.stopPropagation(); handleCopy(ref); }}
-                          className="p-1.5 text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 focus:outline-none rounded transition-colors"
-                        >
+                        <button onClick={(e) => { e.stopPropagation(); handleCopy(ref); }} className="ib-nj" style={{ width: 28, height: 28 }}>
                           {copiedId === ref.id
-                            ? <Check className="h-4 w-4 text-green-500" />
-                            : <Copy className="h-4 w-4" />
+                            ? <Check size={13} strokeWidth={1.6} style={{ color: 'var(--ok)' }} />
+                            : <Copy size={13} strokeWidth={1.6} />
                           }
                         </button>
                       </TooltipTrigger>
-                      <TooltipContent>
-                        <p>{t('copyRefTooltip')}</p>
-                      </TooltipContent>
+                      <TooltipContent><p>{t('copyRefTooltip')}</p></TooltipContent>
                     </Tooltip>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <button
-                          onClick={(e) => { e.stopPropagation(); removeReference(ref.id); }}
-                          className="p-1.5 text-gray-400 hover:text-red-500 dark:hover:text-red-400 focus:outline-none rounded transition-colors"
-                        >
-                          <Trash2 className="h-4 w-4" />
+                        <button onClick={(e) => { e.stopPropagation(); removeReference(ref.id); }} className="ib-nj" style={{ width: 28, height: 28 }}>
+                          <Trash2 size={13} strokeWidth={1.6} style={{ color: 'var(--text-3)' }} />
                         </button>
                       </TooltipTrigger>
-                      <TooltipContent>
-                        <p>{t('deleteRefTooltip')}</p>
-                      </TooltipContent>
+                      <TooltipContent><p>{t('deleteRefTooltip')}</p></TooltipContent>
                     </Tooltip>
                     {expandedId === ref.id
-                      ? <ChevronUp className="h-5 w-5 text-gray-400 dark:text-gray-500" />
-                      : <ChevronDown className="h-5 w-5 text-gray-400 dark:text-gray-500" />
+                      ? <ChevronUp size={16} strokeWidth={1.6} style={{ color: 'var(--text-3)' }} />
+                      : <ChevronDown size={16} strokeWidth={1.6} style={{ color: 'var(--text-3)' }} />
                     }
                   </div>
                 </div>
 
                 {expandedId === ref.id && (
-                  <div className="p-4 border-t border-gray-200 dark:border-gray-700 space-y-4">
+                  <div className="p-4 space-y-4" style={{ borderTop: '1px solid var(--border)' }}>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      <label className="block text-sm font-medium mb-1" style={{ color: 'var(--text-2)', fontFamily: 'var(--ui-font)' }}>
                         {t('sourceType')}
                       </label>
                       <select
                         value={ref.type}
                         onChange={(e) => updateReference(ref.id, 'type', e.target.value as ReferenceType)}
-                        className="block w-full pl-3 pr-10 py-2 text-sm border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 rounded-md transition-colors"
+                        className="block w-full pl-3 pr-10 py-2 text-sm rounded-md outline-none transition-colors"
+                        style={{ border: '1px solid var(--border)', background: 'var(--surface-2)', color: 'var(--text)', fontFamily: 'var(--ui-font)' }}
                       >
                         <option value="book">{t('typeBook')}</option>
                         <option value="article">{t('typeArticle')}</option>
@@ -394,14 +381,11 @@ const ReferencesManager: React.FC = () => {
                       )}
                     </div>
 
-                    <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-950/50 border border-blue-100 dark:border-blue-900 rounded-md">
-                      <p className="text-xs font-semibold text-blue-800 dark:text-blue-300 uppercase tracking-wider mb-1">
+                    <div className="mt-4 p-3 rounded-md" style={{ background: 'var(--accent-soft)', border: '1px solid var(--accent)' }}>
+                      <p className="text-xs font-semibold uppercase tracking-wider mb-1" style={{ color: 'var(--accent)', fontFamily: 'var(--mono-font)' }}>
                         {t('preview')} · {FORMAT_CONFIGS[citationFormat].label}
                       </p>
-                      <p
-                        className="text-sm text-gray-800 dark:text-gray-200 font-serif"
-                        style={{ paddingLeft: '2em', textIndent: '-2em' }}
-                      >
+                      <p className="text-sm" style={{ paddingLeft: '2em', textIndent: '-2em', color: 'var(--text)', fontFamily: 'var(--doc-font)' }}>
                         {formatter.formatReferenceJSX(ref, language)}
                       </p>
                     </div>

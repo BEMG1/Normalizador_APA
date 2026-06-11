@@ -24,27 +24,28 @@ function RightPanel() {
   const { t } = useLanguage();
 
   return (
-    <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-800 flex-1 flex flex-col min-h-0">
+    <div className="rounded-lg flex-1 flex flex-col min-h-0" style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}>
 
       {/* Tab bar */}
-      <div className="flex border-b border-gray-200 dark:border-gray-700 px-2 pt-2 gap-1">
+      <div className="flex px-2 pt-2 gap-1" style={{ borderBottom: '1px solid var(--border)' }}>
         <button
           id="tab-cover-page"
           onClick={() => setActiveTab('cover')}
-          className={`flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-t-md transition-all duration-150 border-b-2 -mb-px ${
-            activeTab === 'cover'
-              ? 'border-blue-500 text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/40'
-              : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800'
-          }`}
+          className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-t-md transition-all duration-150 border-b-2 -mb-px"
+          style={{
+            borderBottomColor: activeTab === 'cover' ? 'var(--accent)' : 'transparent',
+            color: activeTab === 'cover' ? 'var(--accent)' : 'var(--text-2)',
+            background: activeTab === 'cover' ? 'var(--accent-soft)' : 'transparent',
+            fontFamily: 'var(--ui-font)',
+          }}
           aria-selected={activeTab === 'cover'}
           role="tab"
         >
-          <FileImage className="h-4 w-4" />
+          <FileImage className="h-4 w-4" strokeWidth={1.6} />
           {t('coverPageTab')}
-          {/* Badge when cover page is enabled */}
           {coverPage.enabled && (
-            <span className="ml-1 inline-flex items-center justify-center h-4 min-w-4 px-1 text-[10px] font-bold
-                             rounded-full bg-blue-500 text-white leading-none">
+            <span className="ml-1 inline-flex items-center justify-center h-4 min-w-4 px-1 text-[10px] font-bold rounded-full leading-none"
+              style={{ background: 'var(--accent)', color: 'var(--bg)' }}>
               ✓
             </span>
           )}
@@ -53,15 +54,17 @@ function RightPanel() {
         <button
           id="tab-references"
           onClick={() => setActiveTab('references')}
-          className={`flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-t-md transition-all duration-150 border-b-2 -mb-px ${
-            activeTab === 'references'
-              ? 'border-blue-500 text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/40'
-              : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800'
-          }`}
+          className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-t-md transition-all duration-150 border-b-2 -mb-px"
+          style={{
+            borderBottomColor: activeTab === 'references' ? 'var(--accent)' : 'transparent',
+            color: activeTab === 'references' ? 'var(--accent)' : 'var(--text-2)',
+            background: activeTab === 'references' ? 'var(--accent-soft)' : 'transparent',
+            fontFamily: 'var(--ui-font)',
+          }}
           aria-selected={activeTab === 'references'}
           role="tab"
         >
-          <BookOpen className="h-4 w-4" />
+          <BookOpen className="h-4 w-4" strokeWidth={1.6} />
           {t('referencesHeading')}
         </button>
       </div>
@@ -83,22 +86,39 @@ function RightPanel() {
 function AppContent() {  
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col">
+    <div className="min-h-screen flex flex-col" style={{ background: 'var(--bg)', color: 'var(--text)' }}>
       <ExportWarningModal />
       <Header />
       <SupportWidget />
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col lg:flex-row gap-8">
 
-        {/* Left column — Document editor */}
-        <div className="w-full lg:w-3/5 relative min-h-[600px]">
-          <div className="lg:absolute lg:inset-0 flex flex-col h-full w-full">
-            <div className="bg-white dark:bg-gray-900 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-800 flex-1 flex flex-col min-h-0">
-              <DocumentTitle />
-              <DocumentEditor />
-            </div>
-          </div>
-        </div>
+       <div className="w-full lg:w-3/5 flex flex-col gap-4">
+  <div 
+    className="p-6 rounded-lg flex-1 flex flex-col min-h-0" 
+    style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}
+  >
+    <div 
+      className="flex items-center space-x-2 mb-4 pb-2" 
+      style={{ borderBottom: '1px solid var(--border)' }}
+    >
+      <FileText 
+        className="h-5 w-5" 
+        style={{ color: 'var(--text-3)' }} 
+        strokeWidth={1.6} 
+      />
+      <h2 
+        className="text-lg font-medium" 
+        style={{ color: 'var(--text)', fontFamily: 'var(--ui-font)' }}
+      >
+        {t('documentTitle')}
+      </h2>
+    </div>
+
+    <DocumentTitle />
+    <DocumentEditor />
+  </div>
+</div>
 
         {/* Right column — Tabbed panel (References | Cover Page) */}
         <div className="w-full lg:w-2/5 flex flex-col gap-4">

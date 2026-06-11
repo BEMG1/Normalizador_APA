@@ -2,13 +2,9 @@ import { useState, useEffect } from 'react';
 
 export function useDarkMode() {
   const [isDark, setIsDark] = useState(() => {
-    // Check local storage first
     const savedTheme = localStorage.getItem('theme');
-    if (savedTheme) {
-      return savedTheme === 'dark';
-    }
-    // Fallback to system preference
-    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+    if (savedTheme) return savedTheme === 'dark';
+    return true; // Citara es dark-first por defecto
   });
 
   useEffect(() => {

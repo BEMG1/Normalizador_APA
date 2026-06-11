@@ -42,18 +42,11 @@ export const FormatSelector: React.FC = () => {
           <button
             id="citation-format-selector"
             onClick={() => setIsFormatDropdownOpen((prev) => !prev)}
-            className={`inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-md border transition-colors ${
-              isFormatDropdownOpen
-                ? 'border-blue-400 dark:border-blue-600 bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-300'
-                : 'border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700'
-            }`}
+            className="btn-nj"
+            style={isFormatDropdownOpen ? { borderColor: 'var(--accent)', background: 'var(--accent-soft)', color: 'var(--accent)' } : {}}
           >
-            <span className="font-semibold">{t(activeKeys.label as any)}</span>
-            <ChevronDown
-              className={`h-4 w-4 text-gray-400 transition-transform duration-200 ${
-                isFormatDropdownOpen ? 'rotate-180' : ''
-              }`}
-            />
+            <span style={{ fontWeight: 600 }}>{t(activeKeys.label as any)}</span>
+            <ChevronDown size={14} strokeWidth={1.6} className={`transition-transform duration-200 ${isFormatDropdownOpen ? 'rotate-180' : ''}`} style={{ color: 'var(--text-3)' }} />
           </button>
         </TooltipTrigger>
         <TooltipContent>
@@ -62,9 +55,9 @@ export const FormatSelector: React.FC = () => {
       </Tooltip>
 
       {isFormatDropdownOpen && (
-        <div className="absolute right-0 mt-2 w-72 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-2xl z-50 overflow-hidden">
-          <div className="bg-gray-50 dark:bg-gray-900/60 px-4 py-2.5 border-b border-gray-100 dark:border-gray-700">
-            <p className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+        <div className="absolute right-0 mt-2 w-72 rounded-xl z-50 overflow-hidden" style={{ background: 'var(--surface)', border: '1px solid var(--border)', boxShadow: 'var(--shadow-popover)' }}>
+          <div className="px-4 py-2.5" style={{ background: 'var(--surface-2)', borderBottom: '1px solid var(--border)' }}>
+            <p className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--text-3)', fontFamily: 'var(--mono-font)' }}>
               {t('formatSelectorTitle')}
             </p>
           </div>
@@ -76,33 +69,22 @@ export const FormatSelector: React.FC = () => {
                 <button
                   key={fmt}
                   id={`format-option-${fmt}`}
-                  onClick={() => {
-                    setCitationFormat(fmt);
-                    setIsFormatDropdownOpen(false);
+                  onClick={() => { setCitationFormat(fmt); setIsFormatDropdownOpen(false); }}
+                  className="w-full text-left flex items-start gap-3 px-3 py-2.5 rounded-lg transition-all"
+                  style={{
+                    border: `1px solid ${isActive ? 'var(--accent)' : 'transparent'}`,
+                    background: isActive ? 'var(--accent-soft)' : 'transparent',
                   }}
-                  className={`w-full text-left flex items-start gap-3 px-3 py-2.5 rounded-lg transition-all ${
-                    isActive
-                      ? 'bg-blue-50 dark:bg-blue-900/40 border border-blue-200 dark:border-blue-800'
-                      : 'hover:bg-gray-50 dark:hover:bg-gray-700/50 border border-transparent'
-                  }`}
                 >
                   <div className="flex-1 min-w-0">
-                    <span
-                      className={`block text-sm font-semibold ${
-                        isActive
-                          ? 'text-blue-700 dark:text-blue-300'
-                          : 'text-gray-900 dark:text-gray-100'
-                      }`}
-                    >
+                    <span className="block text-sm font-semibold" style={{ color: isActive ? 'var(--accent)' : 'var(--text)' }}>
                       {t(keys.label as any)}
                     </span>
-                    <span className="block text-xs text-gray-500 dark:text-gray-400 mt-0.5 leading-snug">
+                    <span className="block text-xs mt-0.5 leading-snug" style={{ color: 'var(--text-2)' }}>
                       {t(keys.desc as any)}
                     </span>
                   </div>
-                  {isActive && (
-                    <Check className="h-4 w-4 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
-                  )}
+                  {isActive && <Check size={14} strokeWidth={1.6} className="shrink-0 mt-0.5" style={{ color: 'var(--accent)' }} />}
                 </button>
               );
             })}

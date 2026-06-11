@@ -44,7 +44,7 @@ const DocumentEditor: React.FC = () => {
     },
     editorProps: {
       attributes: {
-        class: 'prose prose-sm sm:prose lg:prose-lg xl:prose-2xl mx-auto focus:outline-none min-h-[400px] p-4 text-gray-900 dark:text-gray-100 font-serif',
+        class: 'focus:outline-none',
       },
     },
   });
@@ -205,8 +205,8 @@ const DocumentEditor: React.FC = () => {
   // --- Toolbar helpers ---
 
   const btnBase = 'px-2 py-1 text-xs font-mono font-bold border rounded transition-colors';
-  const btnIdle = 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700';
-  const btnActive = 'border-blue-300 dark:border-blue-700 bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-400';
+  const btnIdle = 'btn-tool-idle';
+  const btnActive = 'btn-tool-active';
 
   if (!editor) {
     return null;
@@ -220,13 +220,13 @@ const DocumentEditor: React.FC = () => {
       {/* Tooltip Quick View */}
       {hoverInfo && (
         <div
-          className="fixed z-50 p-3 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 max-w-sm pointer-events-none transform -translate-x-1/2 translate-y-4"
-          style={{ top: hoverInfo.y, left: hoverInfo.x }}
+          className="fixed z-50 p-3 rounded-lg max-w-sm pointer-events-none transform -translate-x-1/2 translate-y-4"
+          style={{ top: hoverInfo.y, left: hoverInfo.x, background: 'var(--surface-3)', border: '1px solid var(--border)', boxShadow: '0 8px 24px -6px rgba(0,0,0,.5)' }}
         >
-          <p className="text-xs font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wider mb-1">
+          <p className="text-xs font-semibold uppercase tracking-wider mb-1" style={{ color: 'var(--accent)', fontFamily: 'var(--mono-font)' }}>
             {t('associatedSource')}
           </p>
-          <p className="text-sm text-gray-800 dark:text-gray-200 font-serif">
+          <p className="text-sm" style={{ color: 'var(--text)', fontFamily: 'var(--doc-font)' }}>
             {getReferenceText(hoverInfo.ref, language)}
           </p>
         </div>
@@ -236,20 +236,21 @@ const DocumentEditor: React.FC = () => {
       <BubbleMenu 
         editor={editor} 
         shouldShow={({ editor, state }) => editor.isFocused && !state.selection.empty}
-        className="flex rounded-md shadow-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-1 gap-1 items-center z-40"
+        className="flex rounded-md p-1 gap-1 items-center z-40" style={{ background: 'var(--surface)', border: '1px solid var(--border)', boxShadow: '0 4px 12px -4px rgba(0,0,0,.4)' }}
       >
         {isActiveRef ? (
           <>
-            <span className="text-xs font-medium text-gray-500 dark:text-gray-400 px-2 flex items-center">
-              <LinkIcon className="h-3 w-3 mr-1" />
+            <span className="text-xs font-medium px-2 flex items-center gap-1" style={{ color: 'var(--text-2)' }}>
+              <LinkIcon size={12} strokeWidth={1.6} />
               {t('linkedReference')}
             </span>
-            <div className="w-px h-4 bg-gray-200 dark:bg-gray-700 mx-1"></div>
+            <div className="w-px h-4 mx-1" style={{ background: 'var(--border)' }}></div>
             <button
               onClick={() => editor.chain().focus().unsetReference().run()}
-              className="flex items-center px-2 py-1 text-xs font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"
+              className="flex items-center gap-1 px-2 py-1 text-xs font-medium rounded transition-colors"
+              style={{ color: 'var(--err)' }}
             >
-              <Unlink className="h-3 w-3 mr-1" />
+              <Unlink size={12} strokeWidth={1.6} />
               {t('removeLink')}
             </button>
           </>
@@ -261,7 +262,7 @@ const DocumentEditor: React.FC = () => {
                 e.preventDefault(); // Keep editor focus
                 setIsDropdownOpen(!isDropdownOpen);
               }}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-md transition-colors btn-nj ghost"
             >
               <LinkIcon className="h-4 w-4 text-blue-500 dark:text-blue-400" />
               {t('associateReference')}
@@ -269,35 +270,33 @@ const DocumentEditor: React.FC = () => {
             </button>
 
             {isDropdownOpen && (
-              <div className="absolute top-full mt-1.5 -left-2 sm:left-0 w-[280px] bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-2xl z-50 flex flex-col overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150">
-                <div className="bg-gray-50 dark:bg-gray-900/50 px-4 py-2.5 border-b border-gray-100 dark:border-gray-700 flex items-center gap-2">
-                  <BookOpen className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                  <span className="text-xs font-bold text-gray-600 dark:text-gray-300 tracking-wider">
+              <div className="absolute top-full mt-1.5 -left-2 sm:left-0 w-[280px] rounded-xl z-50 flex flex-col overflow-hidden" style={{ background: 'var(--surface)', border: '1px solid var(--border)', boxShadow: 'var(--shadow-popover)' }}>
+                <div className="px-4 py-2.5 flex items-center gap-2" style={{ background: 'var(--surface-2)', borderBottom: '1px solid var(--border)' }}>
+                  <BookOpen size={14} strokeWidth={1.6} style={{ color: 'var(--accent)' }} />
+                  <span className="text-xs font-bold tracking-wider" style={{ color: 'var(--text-2)', fontFamily: 'var(--mono-font)' }}>
                     {t('availableSources')}
                   </span>
                 </div>
-                
                 <div className="max-h-32 overflow-y-auto p-1.5 scrollbar-thin">
                   {references.length === 0 ? (
                     <div className="px-4 py-8 text-center">
-                      <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">{t('noReferencesCreated')}</p>
-                      <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">{t('addSourcesFromPanel')}</p>
+                      <p className="text-sm font-medium" style={{ color: 'var(--text-2)' }}>{t('noReferencesCreated')}</p>
+                      <p className="text-xs mt-1" style={{ color: 'var(--text-3)' }}>{t('addSourcesFromPanel')}</p>
                     </div>
                   ) : (
                     references.map((ref) => (
                       <button
                         key={ref.id}
-                        onMouseDown={(e) => {
-                          e.preventDefault();
-                          editor.chain().focus().setReference(ref.id).run();
-                          setIsDropdownOpen(false);
-                        }}
-                        className="w-full text-left px-3 py-2.5 hover:bg-blue-50 dark:hover:bg-blue-900/40 rounded-lg transition-all flex flex-col gap-1 group border border-transparent hover:border-blue-100 dark:hover:border-blue-800/50"
+                        onMouseDown={(e) => { e.preventDefault(); editor.chain().focus().setReference(ref.id).run(); setIsDropdownOpen(false); }}
+                        className="w-full text-left px-3 py-2.5 rounded-lg transition-all flex flex-col gap-1"
+                        style={{ border: '1px solid transparent' }}
+                        onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'var(--accent-soft)'; (e.currentTarget as HTMLElement).style.borderColor = 'var(--accent)'; }}
+                        onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = ''; (e.currentTarget as HTMLElement).style.borderColor = 'transparent'; }}
                       >
-                        <span className="text-sm font-semibold text-gray-900 dark:text-gray-100 group-hover:text-blue-700 dark:group-hover:text-blue-400 line-clamp-1">
+                        <span className="text-sm font-semibold line-clamp-1" style={{ color: 'var(--text)' }}>
                           {ref.author || t('noAuthor')} ({getYear(ref.year, language)})
                         </span>
-                        <span className="text-xs text-gray-500 dark:text-gray-400 line-clamp-2 leading-snug">
+                        <span className="text-xs line-clamp-2 leading-snug" style={{ color: 'var(--text-2)' }}>
                           {ref.title || t('noTitle')}
                         </span>
                       </button>
@@ -321,24 +320,18 @@ const DocumentEditor: React.FC = () => {
             className="hidden"
             id="file-upload"
           />
-          <label
-            htmlFor="file-upload"
-            className="cursor-pointer inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-700 shadow-sm text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-          >
-            <Upload className="h-4 w-4 mr-2 text-gray-500 dark:text-gray-400" />
+          <label htmlFor="file-upload" className="cursor-pointer btn-nj sm">
+            <Upload size={14} strokeWidth={1.8} />
             {isLoading ? t('loading') : t('uploadDocx')}
           </label>
-          <span className="text-sm text-gray-500 dark:text-gray-400">
+          <span className="text-sm" style={{ color: 'var(--text-3)' }}>
             {t('orDragDrop')}
           </span>
         </div>
 
         {editor.getText().trim() && (
-          <button
-            onClick={handleClear}
-            className="inline-flex items-center px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md transition-colors border border-red-200 dark:border-red-900"
-          >
-            <Trash2 className="h-4 w-4 mr-1.5" />
+          <button onClick={handleClear} className="btn-nj sm" style={{ color: 'var(--err)', borderColor: 'var(--err)' }}>
+            <Trash2 size={13} strokeWidth={1.6} />
             {t('clearDocument')}
           </button>
         )}
@@ -386,7 +379,7 @@ const DocumentEditor: React.FC = () => {
               <p>{t('heading3')}</p>
             </TooltipContent>
           </Tooltip>
-          <span className="text-gray-300 dark:text-gray-600 select-none px-0.5">|</span>
+          <span className="select-none px-0.5" style={{ color: 'var(--border)' }}>|</span>
           <Tooltip>
             <TooltipTrigger asChild>
               <button
@@ -404,15 +397,16 @@ const DocumentEditor: React.FC = () => {
       </>
 
       {/* Editor area */}
-      <div 
-        className="relative flex-1 min-h-0 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm bg-white dark:bg-gray-800 overflow-y-auto scrollbar-thin"
+      <div
+        className="relative flex-1 max-h-[70vh] rounded-md overflow-y-auto scrollbar-thin"
+        style={{ background: 'var(--surface)', border: `1px solid ${isDragging ? 'var(--accent)' : 'var(--border)'}` }}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
       >
         {isDragging && (
-          <div className="absolute inset-0 z-10 flex items-center justify-center border-2 border-dashed border-blue-500 rounded-md bg-blue-50/80 dark:bg-blue-950/80 pointer-events-none">
-            <p className="text-blue-600 dark:text-blue-400 font-medium text-sm">
+          <div className="absolute inset-0 z-10 flex items-center justify-center rounded-md pointer-events-none" style={{ background: 'var(--accent-soft)' }}>
+            <p className="font-medium text-sm" style={{ color: 'var(--accent)' }}>
               {t('dropDocxHere')}
             </p>
           </div>
