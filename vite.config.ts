@@ -5,7 +5,7 @@ import path from 'path'
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: '/Normalizador_APA/',
+  base: '/Citara/',
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
