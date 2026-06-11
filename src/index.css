@@ -381,6 +381,57 @@ code {
   height: 15px;
 }
 
+/* ─── TOKEN UTILITIES ────────────────────────────── */
+.nj-bg          { background: var(--bg) }
+.nj-surface     { background: var(--surface) }
+.nj-surface-2   { background: var(--surface-2) }
+.nj-surface-3   { background: var(--surface-3) }
+.nj-text        { color: var(--text) }
+.nj-text-2      { color: var(--text-2) }
+.nj-text-3      { color: var(--text-3) }
+.nj-accent      { color: var(--accent) }
+.nj-ok          { color: var(--ok) }
+.nj-warn        { color: var(--warn) }
+.nj-err         { color: var(--err) }
+.nj-border      { border-color: var(--border) }
+.nj-border-soft { border-color: var(--border-soft) }
+.nj-bg-accent-s { background: var(--accent-soft) }
+.nj-bg-err-s    { background: rgba(239,122,122,.08) }
+.nj-bg-warn-s   { background: rgba(230,184,107,.08) }
+
+/* ─── BUTTON TOKENS ──────────────────────────────── */
+.btn-nj {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 6px 12px;
+  border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text);
+  font-family: var(--ui-font); font-size: 13px; font-weight: 500;
+  cursor: pointer; white-space: nowrap;
+  transition: border-color .15s, opacity .15s;
+}
+.btn-nj:hover { border-color: var(--text-3) }
+.btn-nj.primary { background: var(--text); color: var(--bg); border-color: var(--text) }
+.btn-nj.primary:hover { opacity: .85 }
+.btn-nj.primary:disabled { opacity: .35; cursor: not-allowed }
+.btn-nj.accent { background: var(--accent-soft); color: var(--accent); border-color: var(--accent) }
+.btn-nj.sm { padding: 4px 10px; font-size: 12px }
+.btn-nj.ghost { background: transparent; border-color: transparent }
+.btn-nj.ghost:hover { background: var(--surface-3); border-color: var(--border) }
+
+.btn-tool-idle  { border-color: var(--border); background: var(--surface); color: var(--text-2) }
+.btn-tool-idle:hover { background: var(--surface-2); color: var(--text) }
+.btn-tool-active { border-color: var(--accent); background: var(--accent-soft); color: var(--accent) }
+
+.ib-nj {
+  width: 32px; height: 32px;
+  display: grid; place-items: center;
+  border: 1px solid transparent; border-radius: 8px;
+  background: transparent; color: var(--text-2); cursor: pointer;
+  transition: background .15s, color .15s;
+}
+.ib-nj:hover { background: var(--surface-3); color: var(--text) }
+.ib-nj svg { width: 15px; height: 15px }
+
 /* Editor (ProseMirror) APA Styling */
 .ProseMirror {
   padding: 28px 36px;
