@@ -100,9 +100,9 @@ export default function SupportForm({ onClose }: SupportFormProps) {
   };
 
   return (
-    <div className="bg-white dark:bg-gray-900 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-800 w-80 sm:w-96 overflow-hidden flex flex-col">
-      <div className="bg-blue-600 px-4 py-3 flex items-center justify-between">
-        <h3 className="text-white font-medium text-sm">{t('supportTitle')}</h3>
+    <div className="nj-surface rounded-xl shadow-2xl border nj-border w-80 sm:w-96 overflow-hidden flex flex-col">
+      <div className="px-4 py-3 flex items-center justify-between" style={{ background: 'var(--accent)' }}>
+        <h3 className="font-medium text-sm" style={{ color: 'var(--bg)' }}>{t('supportTitle')}</h3>
       </div>
 
       <div className="p-4">
@@ -143,7 +143,7 @@ export default function SupportForm({ onClose }: SupportFormProps) {
                 id="requestType"
                 value={requestType}
                 onChange={(e) => setRequestType(e.target.value)}
-                className="w-full text-sm rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500 transition-shadow disabled:opacity-50"
+                className="w-full text-sm rounded-md border nj-border nj-surface nj-text px-3 py-2 outline-none focus:ring-2 focus:ring-[color:var(--accent)] transition-shadow disabled:opacity-50"
                 disabled={status === "loading" || timeRemaining !== null}
               >
                 {requestTypes.map((type) => (
@@ -165,7 +165,7 @@ export default function SupportForm({ onClose }: SupportFormProps) {
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 placeholder={t('supportDescriptionPlaceholder')}
-                className="w-full text-sm rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500 transition-shadow resize-none disabled:opacity-50"
+                className="w-full text-sm rounded-md border nj-border nj-surface nj-text px-3 py-2 outline-none focus:ring-2 focus:ring-[color:var(--accent)] transition-shadow resize-none disabled:opacity-50"
                 disabled={status === "loading" || timeRemaining !== null}
               />
             </div>
@@ -182,7 +182,8 @@ export default function SupportForm({ onClose }: SupportFormProps) {
               <button
                 type="submit"
                 disabled={status === "loading" || timeRemaining !== null || !message.trim()}
-                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors disabled:opacity-50 disabled:hover:bg-blue-600 flex items-center gap-2"
+                className="px-4 py-2 text-sm font-medium rounded-md transition-colors disabled:opacity-50 flex items-center gap-2"
+                style={{ background: 'var(--accent)', color: 'var(--bg)' }}
               >
                 {status === "loading" ? (
                   <>

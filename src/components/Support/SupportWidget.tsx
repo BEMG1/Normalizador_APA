@@ -48,10 +48,12 @@ export function SupportWidget() {
             onClick={toggleOpen}
             aria-label="Abrir formulario de soporte"
             className={`flex items-center justify-center rounded-full shadow-lg transition-all duration-300 transform hover:scale-105 active:scale-95 ${
-              isOpen
-                ? "bg-gray-800 hover:bg-gray-900 text-white w-12 h-12"
-                : "bg-blue-600 hover:bg-blue-700 text-white w-14 h-14"
+              isOpen ? "w-12 h-12" : "w-14 h-14"
             }`}
+            style={{
+              background: isOpen ? 'var(--surface-3)' : 'var(--accent)',
+              color: isOpen ? 'var(--text)' : 'var(--bg)'
+            }}
           >
             {isOpen ? (
               <X className="w-6 h-6 animate-in fade-in spin-in-90 duration-200" />

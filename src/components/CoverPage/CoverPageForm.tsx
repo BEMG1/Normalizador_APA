@@ -94,7 +94,7 @@ const FormField: React.FC<FormFieldProps> = ({ id, def, value, onChange, t }) =>
   <div className="flex flex-col gap-1">
     <label
       htmlFor={id}
-      className="flex items-center gap-1.5 text-sm font-medium text-gray-700 dark:text-gray-300"
+      className="flex items-center gap-1.5 text-sm font-medium nj-text"
     >
       {t(def.labelKey) as string}
       {def.required && (
@@ -104,7 +104,7 @@ const FormField: React.FC<FormFieldProps> = ({ id, def, value, onChange, t }) =>
         <Tooltip>
           <TooltipTrigger asChild>
             <span className="cursor-help">
-              <Info className="h-3.5 w-3.5 text-gray-400 dark:text-gray-500" />
+              <Info className="h-3.5 w-3.5 nj-text-3" />
             </span>
           </TooltipTrigger>
           <TooltipContent>
@@ -119,10 +119,10 @@ const FormField: React.FC<FormFieldProps> = ({ id, def, value, onChange, t }) =>
       value={value}
       onChange={(e) => onChange(e.target.value)}
       placeholder={t(def.placeholderKey) as string}
-      className="w-full px-3 py-2 text-sm rounded-md border border-gray-300 dark:border-gray-700
-                 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100
-                 placeholder-gray-400 dark:placeholder-gray-500
-                 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400
+      className="w-full px-3 py-2 text-sm rounded-md border nj-border
+                 nj-surface-input nj-text
+                 placeholder:nj-text-3
+                 focus:outline-none focus:ring-2 focus:ring-[color:var(--accent)]
                  focus:border-transparent transition-all duration-150"
     />
   </div>
@@ -148,15 +148,14 @@ const CoverPageForm: React.FC = () => {
     <div className="flex flex-col gap-5">
 
       {/* ── Enable / disable toggle ── */}
-      <div className="flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-gray-800/60
-                      border border-gray-200 dark:border-gray-700">
+      <div className="flex items-center justify-between p-3 rounded-lg nj-surface-2 border nj-border">
         <div className="flex items-center gap-2">
-          <FileImage className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+          <FileImage className="h-4 w-4 nj-accent" />
           <div>
-            <p className="text-sm font-semibold text-gray-800 dark:text-gray-200">
+            <p className="text-sm font-semibold nj-text">
               {t('includeCoverPage')}
             </p>
-            <p className="text-xs text-gray-500 dark:text-gray-400">
+            <p className="text-xs nj-text-2">
               {t('includeCoverPageDesc')}
             </p>
           </div>
@@ -166,13 +165,12 @@ const CoverPageForm: React.FC = () => {
           onClick={handleToggle}
           aria-pressed={coverPage.enabled}
           aria-label={coverPage.enabled ? t('disableCoverPage') : t('enableCoverPage')}
-          className="flex-shrink-0 transition-all duration-200 rounded focus:outline-none
-                     focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
+          className="flex-shrink-0 transition-all duration-200 rounded focus:outline-none focus:ring-2 focus:ring-[color:var(--accent)]"
         >
           {coverPage.enabled ? (
-            <ToggleRight className="h-8 w-8 text-blue-600 dark:text-blue-400" />
+            <ToggleRight className="h-8 w-8 nj-accent" />
           ) : (
-            <ToggleLeft className="h-8 w-8 text-gray-400 dark:text-gray-500" />
+            <ToggleLeft className="h-8 w-8 nj-text-3" />
           )}
         </button>
       </div>
@@ -220,8 +218,7 @@ const CoverPageForm: React.FC = () => {
           <button
             id="cover-page-reset"
             onClick={resetCoverPage}
-            className="mt-1 flex items-center gap-1.5 text-xs text-gray-400 dark:text-gray-500
-                       hover:text-red-500 dark:hover:text-red-400 transition-colors self-start"
+            className="mt-1 flex items-center gap-1.5 text-xs nj-text-3 hover:text-[color:var(--err)] transition-colors self-start"
           >
             <RotateCcw className="h-3.5 w-3.5" />
             {t('resetFields')}
@@ -243,10 +240,9 @@ const CoverPageForm: React.FC = () => {
 
       {/* Format notice */}
       {coverPage.enabled && (
-        <div className="flex items-start gap-2 p-3 rounded-lg bg-blue-50 dark:bg-blue-950/50
-                        border border-blue-100 dark:border-blue-900">
-          <Info className="h-4 w-4 text-blue-500 dark:text-blue-400 flex-shrink-0 mt-0.5" />
-          <p className="text-xs text-blue-700 dark:text-blue-300 leading-relaxed">
+        <div className="flex items-start gap-2 p-3 rounded-lg nj-bg-accent-s nj-border border">
+          <Info className="h-4 w-4 nj-accent flex-shrink-0 mt-0.5" />
+          <p className="text-xs nj-text leading-relaxed">
             {citationFormat === 'ieee'
               ? t('ieeeCoverNotice')
               : citationFormat === 'apa7'

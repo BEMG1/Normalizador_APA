@@ -32,13 +32,13 @@ const CoverPagePreview: React.FC<CoverPagePreviewProps> = ({ coverPage, citation
 
   return (
     <div className="flex flex-col items-center">
-      <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">
+      <p className="text-xs font-semibold nj-text-3 uppercase tracking-wider mb-3">
         {t('preview')}
       </p>
 
       {/* A4 page simulation */}
       <div
-        className="w-full max-w-[260px] bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-700
+        className="w-full max-w-[260px] nj-surface-input border nj-border
                    rounded-lg shadow-md overflow-hidden relative"
         style={{ aspectRatio: '210 / 297' }}
         aria-label={t('preview')}
@@ -51,7 +51,7 @@ const CoverPagePreview: React.FC<CoverPagePreviewProps> = ({ coverPage, citation
                  style={{ height: '10%' }}>
               {isAPA && (
                 <span
-                  className="text-gray-500 dark:text-gray-400 font-mono"
+                  className="nj-text-3 font-mono"
                   style={{ fontSize: '0.42rem' }}
                   title="Número de página (APA §2.3)"
                 >
@@ -69,14 +69,14 @@ const CoverPagePreview: React.FC<CoverPagePreviewProps> = ({ coverPage, citation
             >
               {coverPage.title && (
                 <p
-                  className="font-bold text-gray-900 dark:text-gray-100 leading-tight"
+                  className="font-bold nj-text leading-tight"
                   style={{ fontSize: '0.6rem' }}
                 >
                   {isIEEE ? coverPage.title.toUpperCase() : coverPage.title}
                 </p>
               )}
               {isAPA && coverPage.subtitle?.trim() && (
-                <p className="text-gray-700 dark:text-gray-300 mt-0.5" style={{ fontSize: '0.52rem' }}>
+                <p className="nj-text-2 mt-0.5" style={{ fontSize: '0.52rem' }}>
                   {coverPage.subtitle}
                 </p>
               )}
@@ -91,7 +91,7 @@ const CoverPagePreview: React.FC<CoverPagePreviewProps> = ({ coverPage, citation
               {isAPA && <div style={{ height: '1rem' }} />}
 
               {coverPage.authors && (
-                <p className="text-gray-800 dark:text-gray-200" style={{ fontSize: '0.5rem' }}>
+                <p className="nj-text" style={{ fontSize: '0.5rem' }}>
                   {coverPage.authors}
                 </p>
               )}
@@ -116,7 +116,7 @@ const CoverPagePreview: React.FC<CoverPagePreviewProps> = ({ coverPage, citation
                 </p>
               )}
               {(coverPage.city || coverPage.date) && (
-                <p className="text-gray-600 dark:text-gray-400 mt-0.5" style={{ fontSize: '0.46rem' }}>
+                <p className="nj-text-3 mt-0.5" style={{ fontSize: '0.46rem' }}>
                   {[coverPage.city, coverPage.date].filter(Boolean).join(', ')}
                 </p>
               )}
@@ -127,10 +127,10 @@ const CoverPagePreview: React.FC<CoverPagePreviewProps> = ({ coverPage, citation
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center h-full gap-2 px-4">
-            <div className="w-12 h-0.5 bg-gray-200 dark:bg-gray-700 rounded" />
-            <div className="w-16 h-0.5 bg-gray-200 dark:bg-gray-700 rounded" />
-            <div className="w-10 h-0.5 bg-gray-200 dark:bg-gray-700 rounded" />
-            <p className="text-gray-400 dark:text-gray-600 text-center mt-3" style={{ fontSize: '0.48rem' }}>
+            <div className="w-12 h-0.5 nj-surface-3 rounded" />
+            <div className="w-16 h-0.5 nj-surface-3 rounded" />
+            <div className="w-10 h-0.5 nj-surface-3 rounded" />
+            <p className="nj-text-3 text-center mt-3" style={{ fontSize: '0.48rem' }}>
               {t('fillFieldsToPreview')}
             </p>
           </div>
@@ -139,14 +139,14 @@ const CoverPagePreview: React.FC<CoverPagePreviewProps> = ({ coverPage, citation
 
       {/* APA layout hint */}
       {hasContent && isAPA && (
-        <p className="mt-1.5 text-gray-400 dark:text-gray-600 text-center leading-tight" style={{ fontSize: '0.6rem' }}>
+        <p className="mt-1.5 nj-text-3 text-center leading-tight" style={{ fontSize: '0.6rem' }}>
           {t('apaHint')}
         </p>
       )}
 
       {/* Format badge */}
-      <div className="mt-2 px-2 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800">
-        <span className="text-xs text-blue-600 dark:text-blue-400 font-medium">
+      <div className="mt-2 px-2 py-0.5 rounded-full nj-bg-accent-s border nj-border">
+        <span className="text-xs nj-accent font-medium">
           {citationFormat === 'apa7' ? 'APA 7ª Ed.' : citationFormat === 'apa6' ? 'APA 6ª Ed.' : 'IEEE'}
         </span>
       </div>
