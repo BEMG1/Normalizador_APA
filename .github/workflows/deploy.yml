@@ -3,13 +3,24 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches:
-      - main # Esto le dice a GitHub: "Ejecuta esto solo cuando haya cambios en main"
+      - main
 
+# Permisos necesarios para el despliegue nativo de GitHub Pages
 permissions:
-  contents: write # Necesario para que el bot de GitHub pueda subir código a la rama gh-pages
+  contents: read
+  pages: write
+  id-token: write
+
+# Evitar despliegues concurrentes
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
 
 jobs:
   build-and-deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     
     steps:
@@ -19,7 +30,7 @@ jobs:
       - name: 📦 Instalar pnpm
         uses: pnpm/action-setup@v3
         with:
-          version: 9 # Asegura compatibilidad con versiones modernas
+          version: 9
 
       - name: 🟢 Configurar Node.js
         uses: actions/setup-node@v4
@@ -33,8 +44,14 @@ jobs:
       - name: 🏗️ Compilar el proyecto
         run: pnpm run build
 
-      - name: 🚀 Desplegar a gh-pages
-        uses: peaceiris/actions-gh-pages@v3
+      - name: 🚀 Configurar Pages
+        uses: actions/configure-pages@v4
+
+      - name: 📦 Subir artefacto
+        uses: actions/upload-pages-artifact@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dist # OJO: Si tu carpeta generada se llama "build" en vez de "dist", cámbialo aquí.
+          path: './dist'
+
+      - name: 🌐 Desplegar a GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
