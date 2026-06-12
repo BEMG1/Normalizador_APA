@@ -24,28 +24,37 @@ function RightPanel() {
   const { t } = useLanguage();
 
   return (
-    <div className="rounded-lg flex-1 flex flex-col min-h-0" style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}>
-
+    <div
+      className="rounded-lg flex-1 flex flex-col min-h-0"
+      style={{
+        background: "var(--surface)",
+        border: "1px solid var(--border)",
+      }}
+    >
       {/* Tab bar */}
-      <div className="flex px-2 pt-2 gap-1" style={{ borderBottom: '1px solid var(--border)' }}>
+      <div
+        className="flex px-2 pt-2 gap-1"
+        style={{ borderBottom: "1px solid var(--border)" }}
+      >
         <button
           id="tab-cover-page"
-          onClick={() => setActiveTab('cover')}
-          className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-t-md transition-all duration-150 border-b-2 -mb-px"
-          style={{
-            borderBottomColor: activeTab === 'cover' ? 'var(--accent)' : 'transparent',
-            color: activeTab === 'cover' ? 'var(--accent)' : 'var(--text-2)',
-            background: activeTab === 'cover' ? 'var(--accent-soft)' : 'transparent',
-            fontFamily: 'var(--ui-font)',
-          }}
-          aria-selected={activeTab === 'cover'}
+          onClick={() => setActiveTab("cover")}
+          className={`flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-t-md transition-all duration-150 border-b-2 -mb-px cursor-pointer
+            ${activeTab === "cover"
+              ? "border-[color:var(--accent)] text-[color:var(--accent)] bg-[color:var(--accent-soft)]"
+              : "border-transparent text-[color:var(--text-2)] hover:text-[color:var(--text)] hover:bg-[color:var(--surface-3)]"
+            }`}
+          style={{ fontFamily: "var(--ui-font)" }}
+          aria-selected={activeTab === "cover"}
           role="tab"
         >
           <FileImage className="h-4 w-4" strokeWidth={1.6} />
-          {t('coverPageTab')}
+          {t("coverPageTab")}
           {coverPage.enabled && (
-            <span className="ml-1 inline-flex items-center justify-center h-4 min-w-4 px-1 text-[10px] font-bold rounded-full leading-none"
-              style={{ background: 'var(--accent)', color: 'var(--bg)' }}>
+            <span
+              className="ml-1 inline-flex items-center justify-center h-4 min-w-4 px-1 text-[10px] font-bold rounded-full leading-none"
+              style={{ background: "var(--accent)", color: "var(--bg)" }}
+            >
               ✓
             </span>
           )}
@@ -53,29 +62,27 @@ function RightPanel() {
 
         <button
           id="tab-references"
-          onClick={() => setActiveTab('references')}
-          className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-t-md transition-all duration-150 border-b-2 -mb-px"
-          style={{
-            borderBottomColor: activeTab === 'references' ? 'var(--accent)' : 'transparent',
-            color: activeTab === 'references' ? 'var(--accent)' : 'var(--text-2)',
-            background: activeTab === 'references' ? 'var(--accent-soft)' : 'transparent',
-            fontFamily: 'var(--ui-font)',
-          }}
-          aria-selected={activeTab === 'references'}
+          onClick={() => setActiveTab("references")}
+          className={`flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-t-md transition-all duration-150 border-b-2 -mb-px cursor-pointer
+            ${activeTab === "references"
+              ? "border-[color:var(--accent)] text-[color:var(--accent)] bg-[color:var(--accent-soft)]"
+              : "border-transparent text-[color:var(--text-2)] hover:text-[color:var(--text)] hover:bg-[color:var(--surface-3)]"
+            }`}
+          style={{ fontFamily: "var(--ui-font)" }}
+          aria-selected={activeTab === "references"}
           role="tab"
         >
           <BookOpen className="h-4 w-4" strokeWidth={1.6} />
-          {t('referencesHeading')}
+          {t("referencesHeading")}
         </button>
       </div>
 
       {/* Tab content */}
-      <div key={activeTab} className="flex-1 overflow-y-auto scrollbar-thin p-6 min-h-0 anim-fade-in">
-        {activeTab === 'references' ? (
-          <ReferencesManager />
-        ) : (
-          <CoverPageForm />
-        )}
+      <div
+        key={activeTab}
+        className="flex-1 overflow-y-auto scrollbar-thin p-6 min-h-0 anim-fade-in"
+      >
+        {activeTab === "references" ? <ReferencesManager /> : <CoverPageForm />}
       </div>
     </div>
   );
@@ -85,18 +92,22 @@ function RightPanel() {
 
 function AppContent() {
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: 'var(--bg)', color: 'var(--text)' }}>
+    <div
+      className="min-h-screen flex flex-col"
+      style={{ background: "var(--bg)", color: "var(--text)" }}
+    >
       <ExportWarningModal />
       <Header />
       <SupportWidget />
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col lg:flex-row gap-8">
-
-        {/* Left column — Document editor */}
-        <div className="w-full lg:w-3/5 flex flex-col gap-4 anim-fade-in">
+        <div className="w-full lg:w-3/5 flex flex-col gap-4">
           <div
             className="p-6 rounded-lg flex-1 flex flex-col min-h-0"
-            style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}
+            style={{
+              background: "var(--surface)",
+              border: "1px solid var(--border)",
+            }}
           >
             <DocumentTitle />
             <DocumentEditor />

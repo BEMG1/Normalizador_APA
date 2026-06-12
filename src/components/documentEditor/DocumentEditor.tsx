@@ -398,7 +398,7 @@ const DocumentEditor: React.FC = () => {
 
       {/* Editor area */}
       <div
-        className="relative flex-1 max-h-[70vh] rounded-md overflow-y-auto scrollbar-thin"
+        className="relative flex-1 rounded-md overflow-y-auto scrollbar-thin"
         style={{ background: 'var(--surface)', border: `1px solid ${isDragging ? 'var(--accent)' : 'var(--border)'}` }}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
