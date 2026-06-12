@@ -39,11 +39,11 @@ function RightPanel() {
         <button
           id="tab-cover-page"
           onClick={() => setActiveTab("cover")}
-          className={`flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-t-md transition-all duration-150 border-b-2 -mb-px cursor-pointer ${
-            activeTab === "cover"
-              ? "border-[var(--accent)] text-[var(--accent)] bg-[var(--accent-soft)]"
-              : "border-transparent text-[var(--text-2)] bg-transparent hover:bg-[var(--surface-2)] hover:text-[var(--text)]"
-          }`}
+          className={`flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-t-md transition-all duration-150 border-b-2 -mb-px cursor-pointer
+            ${activeTab === "cover"
+              ? "border-[color:var(--accent)] text-[color:var(--accent)] bg-[color:var(--accent-soft)]"
+              : "border-transparent text-[color:var(--text-2)] hover:text-[color:var(--text)] hover:bg-[color:var(--surface-3)]"
+            }`}
           style={{ fontFamily: "var(--ui-font)" }}
           aria-selected={activeTab === "cover"}
           role="tab"
@@ -63,11 +63,11 @@ function RightPanel() {
         <button
           id="tab-references"
           onClick={() => setActiveTab("references")}
-          className={`flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-t-md transition-all duration-150 border-b-2 -mb-px cursor-pointer ${
-            activeTab === "references"
-              ? "border-[var(--accent)] text-[var(--accent)] bg-[var(--accent-soft)]"
-              : "border-transparent text-[var(--text-2)] bg-transparent hover:bg-[var(--surface-2)] hover:text-[var(--text)]"
-          }`}
+          className={`flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-t-md transition-all duration-150 border-b-2 -mb-px cursor-pointer
+            ${activeTab === "references"
+              ? "border-[color:var(--accent)] text-[color:var(--accent)] bg-[color:var(--accent-soft)]"
+              : "border-transparent text-[color:var(--text-2)] hover:text-[color:var(--text)] hover:bg-[color:var(--surface-3)]"
+            }`}
           style={{ fontFamily: "var(--ui-font)" }}
           aria-selected={activeTab === "references"}
           role="tab"
@@ -78,7 +78,10 @@ function RightPanel() {
       </div>
 
       {/* Tab content */}
-      <div className="flex-1 overflow-y-auto scrollbar-thin p-6 min-h-0">
+      <div
+        key={activeTab}
+        className="flex-1 overflow-y-auto scrollbar-thin p-6 min-h-0 anim-fade-in"
+      >
         {activeTab === "references" ? <ReferencesManager /> : <CoverPageForm />}
       </div>
     </div>
@@ -112,7 +115,7 @@ function AppContent() {
         </div>
 
         {/* Right column — Tabbed panel (References | Cover Page) */}
-        <div className="w-full lg:w-2/5 flex flex-col gap-4">
+        <div className="w-full lg:w-2/5 flex flex-col gap-4 anim-fade-in anim-delay-1">
           <RightPanel />
         </div>
       </main>
