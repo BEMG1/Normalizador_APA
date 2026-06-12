@@ -1,0 +1,40 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main # Esto le dice a GitHub: "Ejecuta esto solo cuando haya cambios en main"
+
+permissions:
+  contents: write # Necesario para que el bot de GitHub pueda subir código a la rama gh-pages
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Descargar el código
+        uses: actions/checkout@v4
+
+      - name: 📦 Instalar pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9 # Asegura compatibilidad con versiones modernas
+
+      - name: 🟢 Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: ⚙️ Instalar dependencias
+        run: pnpm install
+
+      - name: 🏗️ Compilar el proyecto
+        run: pnpm run build
+
+      - name: 🚀 Desplegar a gh-pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist # OJO: Si tu carpeta generada se llama "build" en vez de "dist", cámbialo aquí.
