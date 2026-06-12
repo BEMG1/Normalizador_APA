@@ -5,11 +5,11 @@ import { useCitationFormat } from "./CitationFormatContext";
 import { exportToDocx } from "@/utils/docxExport";
 import { useCoverPage } from "./CoverPageContext";
 import { useLanguage } from "./LanguageContext";
-import type { IExport } from "@/interfaces/IExport";
+import type { IExportWord } from "@/interfaces/IExportWord";
 
-const ExportContext = createContext<IExport | undefined>(undefined);
+const ExportWordContext = createContext<IExportWord | undefined>(undefined);
 
-const ExportProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+export const ExportWordProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const { documentText, documentTitle } = useDocument();
   const { references } = useReferences();
   const { formatter } = useCitationFormat();
@@ -46,19 +46,19 @@ const ExportProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   );
 
   return (
-    <ExportContext.Provider value={value}>
+    <ExportWordContext.Provider value={value}>
       {children}
-    </ExportContext.Provider>
+    </ExportWordContext.Provider>
   );
 };
 
-export const useExport = () => {
-  const context = useContext(ExportContext);
+export const useExportWord = () => {
+  const context = useContext(ExportWordContext);
   if (context === undefined) {
-    throw new Error("useExport must be used within an ExportProvider");
+    throw new Error("useExportWord must be used within an ExportWordProvider");
   }
   return context;
 };
 
-export default ExportProvider;
+export default ExportWordProvider;
 

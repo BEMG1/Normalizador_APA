@@ -1,12 +1,23 @@
 import React from 'react';
 import { AlertTriangle } from 'lucide-react';
-import { useExport, useLanguage } from '@/context/AppContext';
+import { useExportWord, useLanguage, useExportPDF } from '@/context/AppContext';
 
 const ExportWarningModal: React.FC = () => {
-  const { showExportWarning, setShowExportWarning, handleExportAnyway } = useExport();
+  const { showExportWarning, setShowExportWarning, handleExportAnyway } = useExportWord();
+  const { showExportPdfWarning, setShowExportPdfWarning, handleExportPdfAnyway } = useExportPDF();
   const { t } = useLanguage();
 
-  if (!showExportWarning) return null;
+  if (!showExportWarning && !showExportPdfWarning) return null;
+
+  const handleCancel = () => {
+    if (showExportWarning) setShowExportWarning(false);
+    if (showExportPdfWarning) setShowExportPdfWarning(false);
+  };
+
+  const handleConfirm = () => {
+    if (showExportWarning) handleExportAnyway();
+    if (showExportPdfWarning) handleExportPdfAnyway();
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
@@ -26,10 +37,10 @@ const ExportWarningModal: React.FC = () => {
           </div>
         </div>
         <div className="flex justify-end space-x-3">
-          <button onClick={() => setShowExportWarning(false)} className="btn-nj">
+          <button onClick={handleCancel} className="btn-nj">
             {t('cancel')}
           </button>
-          <button onClick={handleExportAnyway} className="btn-nj accent">
+          <button onClick={handleConfirm} className="btn-nj accent">
             {t('exportAnyway')}
           </button>
         </div>

@@ -698,3 +698,64 @@ code {
 .theme-dani.dark .scrollbar-thin::-webkit-scrollbar-thumb:hover {
   background: #9f1239; /* rose-800 */
 }
+
+/* ─── PRINT STYLES FOR PDF EXPORT ─────────────────────────────────────────── */
+@media print {
+  body {
+    background: transparent !important;
+    color: #000 !important;
+  }
+  
+  /* Hide all UI elements */
+  header, 
+  .SupportWidget,
+  .btn-nj,
+  #tab-cover-page,
+  #tab-references,
+  .cal-nav-btn,
+  .w-full.lg\:w-2\/5, /* Right panel */
+  .ExportWarningModal,
+  nav,
+  footer {
+    display: none !important;
+  }
+
+  /* Expand main layout */
+  .min-h-screen, .h-screen, main, .w-full.lg\:w-3\/5 {
+    display: block !important;
+    height: auto !important;
+    min-height: auto !important;
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+
+  /* Editor container styles for print */
+  .relative.flex-1.rounded-md.overflow-y-auto {
+    overflow: visible !important;
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+
+  /* ProseMirror specific print styles */
+  .ProseMirror {
+    padding: 0 !important;
+    min-height: auto !important;
+    background: transparent !important;
+    color: #000 !important;
+  }
+
+  /* Page breaks */
+  h1, h2 {
+    page-break-after: avoid;
+  }
+  
+  /* Reset tooltips and bubbles */
+  [data-radix-popper-content-wrapper],
+  .tiptap-bubble-menu {
+    display: none !important;
+  }
+}

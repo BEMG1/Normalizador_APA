@@ -75,6 +75,12 @@ export interface TranslationDictionary {
   documentTitle: string;
   documentSubtitle: string;
   exportWord: string;
+  exportBtn: string;
+  exportDocument: string;
+  exportDocxTitle: string;
+  exportDocxDesc: string;
+  exportPdfTitle: string;
+  exportPdfDesc: string;
   copyText: string;
   placeholderText: string;
 

@@ -413,7 +413,7 @@ const DocumentEditor: React.FC = () => {
         )}
         <EditorContent 
           editor={editor} 
-          className="h-full rounded-md focus-within:ring-2 focus-within:ring-inset focus-within:ring-[color:var(--accent)] focus-within:outline-none transition-shadow duration-150" 
+          className="min-h-full rounded-md focus-within:ring-2 focus-within:ring-inset focus-within:ring-[color:var(--accent)] focus-within:outline-none transition-shadow duration-150" 
           style={{ background: 'var(--paper)', color: 'var(--paper-ink, var(--text))' }}
         />
       </div>
