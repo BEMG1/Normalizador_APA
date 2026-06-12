@@ -10,6 +10,13 @@ import {
   Header,
   PageNumber,
   NumberFormat,
+  ImageRun,
+  Table,
+  TableRow,
+  TableCell,
+  WidthType,
+  BorderStyle,
+  VerticalAlign,
 } from "docx";
 import { saveAs } from "file-saver";
 import type { Reference } from "../components/References/ReferencesManager";
@@ -52,22 +59,27 @@ const buildCoverPageChildren = (
 
   if (isIEEE) {
     // ── IEEE Cover Page ──────────────────────────────────────────────────────
-    return [
+    const ieeeChildren: Paragraph[] = [
       emptyLine(), emptyLine(), emptyLine(), emptyLine(), emptyLine(),
       emptyLine(), emptyLine(), emptyLine(),
+    ];
+
+    ieeeChildren.push(
       centred([bold(cover.title.toUpperCase(), 28)]),
       emptyLine(), emptyLine(),
-      centred([normal(cover.authors)]),
+      ...cover.authors.split('\n').map(a => a.trim()).filter(Boolean).map(a => centred([normal(a)])),
       emptyLine(),
-      ...(cover.institution ? [centred([normal(cover.institution)])] : []),
-      ...(cover.faculty ? [centred([normal(cover.faculty)])] : []),
-      emptyLine(),
-      ...(cover.city ? [centred([normal(cover.city)])] : []),
+    );
+
+    if (cover.institution) ieeeChildren.push(centred([normal(cover.institution)]));
+    if (cover.faculty) ieeeChildren.push(centred([normal(cover.faculty)]));
+    ieeeChildren.push(emptyLine());
+    if (cover.city) ieeeChildren.push(centred([normal(cover.city)]));
+    ieeeChildren.push(
       centred([normal(cover.date)]),
-      new Paragraph({
-        children: [new PageBreak()],
-      }),
-    ];
+      new Paragraph({ children: [new PageBreak()] })
+    );
+    return ieeeChildren;
   }
 
   // ── APA 7 / APA 6 Cover Page ────────────────────────────────────────────────
@@ -76,6 +88,7 @@ const buildCoverPageChildren = (
   //   - All text centred, double-spaced.
   //   - Page number 1 appears in the header (top-right), added via the section header.
   //
+  // (upper half of an 8.5"×11" or A4 page with 1" margins = usable height ~9").
   // We use convertInchesToTwip to push the title block to ~3.5" from the top
   // (upper half of an 8.5"×11" or A4 page with 1" margins = usable height ~9").
   const children: Paragraph[] = [
@@ -94,7 +107,8 @@ const buildCoverPageChildren = (
 
   // Autor(es)
   if (cover.authors?.trim()) {
-    children.push(centred([normal(cover.authors)]));
+    const authorLines = cover.authors.split('\n').map(a => a.trim()).filter(Boolean);
+    authorLines.forEach(a => children.push(centred([normal(a)])));
   }
 
   // Institución y Facultad
@@ -382,18 +396,104 @@ export const exportToDocx = async (
 
   // Build cover page section if enabled
   // APA 7 §2.3: page number appears top-right on the cover page itself (page 1).
-  const apaPageNumberHeader = new Header({
-    children: [
-      new Paragraph({
+  
+  const base64ToUint8Array = (base64Str: string) => {
+    try {
+      const base64Data = base64Str.split(",")[1];
+      const binaryStr = atob(base64Data);
+      const len = binaryStr.length;
+      const bytes = new Uint8Array(len);
+      for (let i = 0; i < len; i++) {
+        bytes[i] = binaryStr.charCodeAt(i);
+      }
+      return bytes;
+    } catch (e) {
+      return null;
+    }
+  };
+
+  let documentHeader: Header;
+
+  if (coverPage?.logo) {
+    const logoBytes = base64ToUint8Array(coverPage.logo);
+    if (logoBytes) {
+      documentHeader = new Header({
         children: [
-          new TextRun({
-            children: [PageNumber.CURRENT],
+          new Table({
+            width: { size: 100, type: WidthType.PERCENTAGE },
+            borders: {
+              top: { style: BorderStyle.NONE },
+              bottom: { style: BorderStyle.NONE },
+              left: { style: BorderStyle.NONE },
+              right: { style: BorderStyle.NONE },
+              insideHorizontal: { style: BorderStyle.NONE },
+              insideVertical: { style: BorderStyle.NONE },
+            },
+            rows: [
+              new TableRow({
+                children: [
+                  new TableCell({
+                    children: [
+                      new Paragraph({
+                        children: [
+                          new ImageRun({
+                            data: logoBytes,
+                            transformation: { width: 50, height: 50 },
+                            type: "png",
+                          }),
+                        ],
+                        alignment: AlignmentType.LEFT,
+                      }),
+                    ],
+                    verticalAlign: VerticalAlign.CENTER,
+                  }),
+                  new TableCell({
+                    children: [
+                      new Paragraph({
+                        children: [
+                          new TextRun({
+                            children: [PageNumber.CURRENT],
+                          }),
+                        ],
+                        alignment: AlignmentType.RIGHT,
+                      }),
+                    ],
+                    verticalAlign: VerticalAlign.CENTER,
+                  }),
+                ],
+              }),
+            ],
           }),
         ],
-        alignment: AlignmentType.RIGHT,
-      }),
-    ],
-  });
+      });
+    } else {
+      documentHeader = new Header({
+        children: [
+          new Paragraph({
+            children: [
+              new TextRun({
+                children: [PageNumber.CURRENT],
+              }),
+            ],
+            alignment: AlignmentType.RIGHT,
+          }),
+        ],
+      });
+    }
+  } else {
+    documentHeader = new Header({
+      children: [
+        new Paragraph({
+          children: [
+            new TextRun({
+              children: [PageNumber.CURRENT],
+            }),
+          ],
+          alignment: AlignmentType.RIGHT,
+        }),
+      ],
+    });
+  }
 
   const coverSection = coverPage?.enabled
     ? [
@@ -406,8 +506,8 @@ export const exportToDocx = async (
             },
           },
           // APA 7: header with page number top-right; IEEE has no running header
-          headers: formatter.sortMode !== 'appearance'
-            ? { default: apaPageNumberHeader }
+          headers: formatter.sortMode !== 'appearance' || coverPage?.logo
+            ? { default: documentHeader }
             : undefined,
           children: buildCoverPageChildren(coverPage, formatter.sortMode),
         },
@@ -471,6 +571,9 @@ export const exportToDocx = async (
             margin: { top: margin, right: margin, bottom: margin, left: margin },
           },
         },
+        headers: formatter.sortMode !== 'appearance' || coverPage?.logo
+          ? { default: documentHeader }
+          : undefined,
         children: [...paragraphs],
       },
       {
@@ -480,6 +583,9 @@ export const exportToDocx = async (
             margin: { top: margin, right: margin, bottom: margin, left: margin },
           },
         },
+        headers: formatter.sortMode !== 'appearance' || coverPage?.logo
+          ? { default: documentHeader }
+          : undefined,
         children: [
           new Paragraph({
             children: [

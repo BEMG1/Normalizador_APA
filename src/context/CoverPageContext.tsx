@@ -21,6 +21,7 @@ const DEFAULT_COVER_PAGE: CoverPage = {
   teacher: '',
   city: '',
   date: '',
+  logo: null,
 };
 
 // ─── Context ───────────────────────────────────────────────────────────────────

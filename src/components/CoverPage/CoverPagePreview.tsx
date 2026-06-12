@@ -47,8 +47,11 @@ const CoverPagePreview: React.FC<CoverPagePreviewProps> = ({ coverPage, citation
           <div className="flex flex-col h-full">
 
             {/* ── Header bar (page number for APA) ── */}
-            <div className="flex items-center justify-end px-3 pt-2 pb-0.5 flex-shrink-0"
+            <div className={`flex items-center px-3 pt-2 pb-0.5 flex-shrink-0 ${coverPage.logo ? 'justify-between' : 'justify-end'}`}
                  style={{ height: '10%' }}>
+              {coverPage.logo && (
+                <img src={coverPage.logo} alt="Logo" className="object-contain mix-blend-multiply" style={{ maxHeight: '0.8rem', maxWidth: '1.5rem' }} />
+              )}
               {isAPA && (
                 <span
                   className="nj-text-3 font-mono"
@@ -91,9 +94,11 @@ const CoverPagePreview: React.FC<CoverPagePreviewProps> = ({ coverPage, citation
               {isAPA && <div style={{ height: '1rem' }} />}
 
               {coverPage.authors && (
-                <p className="nj-text" style={{ fontSize: '0.5rem' }}>
-                  {coverPage.authors}
-                </p>
+                <div className="nj-text" style={{ fontSize: '0.5rem' }}>
+                  {coverPage.authors.split('\n').map((author, idx) => (
+                    <div key={idx}>{author}</div>
+                  ))}
+                </div>
               )}
               {coverPage.institution && (
                 <p className="text-gray-600 dark:text-gray-400" style={{ fontSize: '0.48rem' }}>

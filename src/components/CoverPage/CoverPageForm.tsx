@@ -1,5 +1,5 @@
 import React, { useId } from 'react';
-import { RotateCcw, FileImage, ToggleLeft, ToggleRight, Info } from 'lucide-react';
+import { RotateCcw, FileImage, ToggleLeft, ToggleRight, Info, Upload, Trash2, Image as ImageIcon } from 'lucide-react';
 import { useCoverPage, useLanguage } from '@/context/AppContext';
 import { useCitationFormat } from '@/context/AppContext';
 import type { CoverPage } from '@/interfaces/ICoverPage';
@@ -114,14 +114,25 @@ const FormField: React.FC<FormFieldProps> = ({ id, def, value, onChange, t }) =>
         </Tooltip>
       )}
     </label>
-    <input
-      id={id}
-      type="text"
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      placeholder={t(def.placeholderKey) as string}
-      className="input-nj"
-    />
+    {def.key === 'authors' ? (
+      <textarea
+        id={id}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={t(def.placeholderKey) as string}
+        className="input-nj resize-y"
+        rows={2}
+      />
+    ) : (
+      <input
+        id={id}
+        type="text"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={t(def.placeholderKey) as string}
+        className="input-nj"
+      />
+    )}
   </div>
 );
 
@@ -139,6 +150,21 @@ const CoverPageForm: React.FC = () => {
 
   const handleToggle = () => {
     updateField('enabled', !coverPage.enabled);
+  };
+
+  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        updateField('logo', reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleLogoRemove = () => {
+    updateField('logo', null);
   };
 
   return (
@@ -173,6 +199,40 @@ const CoverPageForm: React.FC = () => {
             <ToggleLeft className="h-8 w-8" style={{ color: 'var(--text-3)' }} />
           )}
         </button>
+      </div>
+
+      {/* ── Logo Uploader ── */}
+      <div
+        className={`flex flex-col gap-2 transition-opacity duration-200 ${
+          coverPage.enabled ? 'opacity-100' : 'opacity-40 pointer-events-none select-none'
+        }`}
+      >
+        <label className="flex items-center gap-1.5 text-sm font-medium" style={{ color: 'var(--text)' }}>
+          <ImageIcon className="h-4 w-4" style={{ color: 'var(--text-3)' }} />
+          {t('institutionalLogo') as string}
+        </label>
+        {coverPage.logo ? (
+          <div className="flex items-center gap-3 p-3 rounded-lg border" style={{ borderColor: 'var(--border)', background: 'var(--surface-2)' }}>
+            <img src={coverPage.logo} alt="Logo" className="h-10 w-auto object-contain bg-white rounded p-0.5 border" style={{ borderColor: 'var(--border)' }} />
+            <div className="flex gap-2 ml-auto">
+              <label className="btn-nj sm cursor-pointer">
+                <Upload size={13} />
+                {t('replaceLogo') as string}
+                <input type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} />
+              </label>
+              <button onClick={handleLogoRemove} className="btn-nj sm" style={{ color: 'var(--err)', borderColor: 'var(--err)' }}>
+                <Trash2 size={13} />
+                {t('deleteLogo') as string}
+              </button>
+            </div>
+          </div>
+        ) : (
+          <label className="flex flex-col items-center justify-center p-4 rounded-lg border border-dashed cursor-pointer hover:bg-[color:var(--surface-3)] transition-colors" style={{ borderColor: 'var(--border)' }}>
+            <Upload className="h-5 w-5 mb-2" style={{ color: 'var(--text-3)' }} />
+            <span className="text-sm font-medium" style={{ color: 'var(--text-2)' }}>{t('uploadLogo') as string}</span>
+            <input type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} />
+          </label>
+        )}
       </div>
 
       {/* ── Form + Preview (two-column on medium+) ── */}

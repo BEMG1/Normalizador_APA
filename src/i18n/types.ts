@@ -147,6 +147,10 @@ export interface TranslationDictionary {
   disableCoverPage: string;
   enableCoverPage: string;
   resetFields: string;
+  institutionalLogo: string;
+  uploadLogo: string;
+  replaceLogo: string;
+  deleteLogo: string;
   ieeeCoverNotice: string;
   apa7CoverNotice: string;
   apa6CoverNotice: string;
