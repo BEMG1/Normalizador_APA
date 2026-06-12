@@ -165,7 +165,7 @@ const CoverPageForm: React.FC = () => {
           onClick={handleToggle}
           aria-pressed={coverPage.enabled}
           aria-label={coverPage.enabled ? t('disableCoverPage') : t('enableCoverPage')}
-          className="flex-shrink-0 transition-all duration-200 rounded focus:outline-none"
+          className="flex-shrink-0 transition-all duration-200 rounded focus:outline-none cursor-pointer"
         >
           {coverPage.enabled ? (
             <ToggleRight className="h-8 w-8" style={{ color: 'var(--accent)' }} />

@@ -69,6 +69,12 @@ export const en: TranslationDictionary = {
   documentTitle: 'Main Document',
   documentSubtitle: 'Write your text and select fragments to insert citations.',
   exportWord: 'Export to Word',
+  exportBtn: 'Export',
+  exportDocument: 'Export document',
+  exportDocxTitle: 'Export as Microsoft Word',
+  exportDocxDesc: 'Generates a Word-compatible file maintaining all the structure, margins, and indentations of the chosen format.',
+  exportPdfTitle: 'Export as PDF Document',
+  exportPdfDesc: 'Ideal for submitting or printing directly. Guarantees that typography and visual design remain completely unaltered.',
   copyText: 'Copy text',
   placeholderText: 'Write or paste your text here...',
 
