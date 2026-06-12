@@ -41,7 +41,7 @@
   --err: #dc2626;
 
   /* Documento A4 */
-  --paper: #ffffff;
+  --paper: #ffffff2f;
   --paper-ink: #18143a;
   --paper-muted: #9a90c9;
   --hl: rgba(201, 146, 10, 0.18);
@@ -81,8 +81,8 @@
   --err: #f87171;
 
   /* Documento A4 */
-  --paper: #fbf9f5;
-  --paper-ink: #18143a;
+  --paper: #13102e;
+  --paper-ink: #271d87;
   --paper-muted: #9a90c9;
   --hl: rgba(245, 185, 66, 0.22);
 
