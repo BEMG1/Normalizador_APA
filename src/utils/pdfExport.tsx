@@ -276,7 +276,7 @@ const buildPdfDocument = (
   formatter: ICitationFormatter,
   lang?: string,
   coverPage?: CoverPage,
-): React.ReactElement => {
+): React.ReactElement<any> => {
   const isIEEE = formatter.sortMode === 'appearance';
 
   // Sort references
