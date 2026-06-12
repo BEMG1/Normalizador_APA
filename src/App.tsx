@@ -39,15 +39,12 @@ function RightPanel() {
         <button
           id="tab-cover-page"
           onClick={() => setActiveTab("cover")}
-          className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-t-md transition-all duration-150 border-b-2 -mb-px"
-          style={{
-            borderBottomColor:
-              activeTab === "cover" ? "var(--accent)" : "transparent",
-            color: activeTab === "cover" ? "var(--accent)" : "var(--text-2)",
-            background:
-              activeTab === "cover" ? "var(--accent-soft)" : "transparent",
-            fontFamily: "var(--ui-font)",
-          }}
+          className={`flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-t-md transition-all duration-150 border-b-2 -mb-px cursor-pointer ${
+            activeTab === "cover"
+              ? "border-[var(--accent)] text-[var(--accent)] bg-[var(--accent-soft)]"
+              : "border-transparent text-[var(--text-2)] bg-transparent hover:bg-[var(--surface-2)] hover:text-[var(--text)]"
+          }`}
+          style={{ fontFamily: "var(--ui-font)" }}
           aria-selected={activeTab === "cover"}
           role="tab"
         >
@@ -66,16 +63,12 @@ function RightPanel() {
         <button
           id="tab-references"
           onClick={() => setActiveTab("references")}
-          className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-t-md transition-all duration-150 border-b-2 -mb-px"
-          style={{
-            borderBottomColor:
-              activeTab === "references" ? "var(--accent)" : "transparent",
-            color:
-              activeTab === "references" ? "var(--accent)" : "var(--text-2)",
-            background:
-              activeTab === "references" ? "var(--accent-soft)" : "transparent",
-            fontFamily: "var(--ui-font)",
-          }}
+          className={`flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-t-md transition-all duration-150 border-b-2 -mb-px cursor-pointer ${
+            activeTab === "references"
+              ? "border-[var(--accent)] text-[var(--accent)] bg-[var(--accent-soft)]"
+              : "border-transparent text-[var(--text-2)] bg-transparent hover:bg-[var(--surface-2)] hover:text-[var(--text)]"
+          }`}
+          style={{ fontFamily: "var(--ui-font)" }}
           aria-selected={activeTab === "references"}
           role="tab"
         >

@@ -141,7 +141,7 @@ const DatePickerField: React.FC<DatePickerFieldProps> = ({
       {/* Label */}
       <label
         htmlFor={fieldId}
-        className="flex items-center gap-1.5 text-sm font-medium text-gray-700 dark:text-gray-300"
+        className="flex items-center gap-1.5 text-sm font-medium nj-text"
       >
         {label}
         {required && (
@@ -159,12 +159,12 @@ const DatePickerField: React.FC<DatePickerFieldProps> = ({
         className={`w-full flex items-center justify-between px-3 py-2 text-sm rounded-md border
                     transition-all duration-150 text-left
                     ${open
-                      ? 'border-blue-500 dark:border-blue-400 ring-2 ring-blue-500/30 dark:ring-blue-400/30'
-                      : 'border-gray-300 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-500'
+                      ? 'border-[color:var(--accent)] ring-2 ring-[color:var(--accent)]'
+                      : 'nj-border hover:border-[color:var(--text-3)]'
                     }
-                    bg-white dark:bg-gray-800`}
+                    nj-surface-input`}
       >
-        <span className={value ? 'text-gray-900 dark:text-gray-100' : 'text-gray-400 dark:text-gray-500'}>
+        <span className={value ? 'nj-text' : 'nj-text-3'}>
           {value || t('selectDate')}
         </span>
         <span className="flex items-center gap-1 flex-shrink-0 ml-2">
@@ -175,13 +175,13 @@ const DatePickerField: React.FC<DatePickerFieldProps> = ({
               aria-label={t('clearDate')}
               onClick={handleClear}
               onKeyDown={(e) => e.key === 'Enter' && handleClear(e as any)}
-              className="p-0.5 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400
-                         hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+              className="p-0.5 rounded hover:bg-[color:var(--surface-3)] nj-text-3
+                         hover:nj-text transition-colors"
             >
               <X className="h-3.5 w-3.5" />
             </span>
           )}
-          <Calendar className={`h-4 w-4 ${open ? 'text-blue-500 dark:text-blue-400' : 'text-gray-400 dark:text-gray-500'}`} />
+          <Calendar className={`h-4 w-4 ${open ? 'nj-accent' : 'nj-text-3'}`} />
         </span>
       </button>
 
@@ -190,7 +190,7 @@ const DatePickerField: React.FC<DatePickerFieldProps> = ({
         <div
           role="dialog"
           aria-label={t('datePickerLabel')}
-          className="absolute z-50 mt-1 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700
+          className="absolute z-50 mt-1 nj-surface border nj-border
                      rounded-xl shadow-2xl p-4 w-72 select-none"
           style={{ marginTop: '0.25rem' }}
         >
@@ -200,8 +200,8 @@ const DatePickerField: React.FC<DatePickerFieldProps> = ({
               type="button"
               onClick={prevMonth}
               aria-label={t('prevMonth')}
-              className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500
-                         dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
+              className="p-1.5 rounded-lg hover:bg-[color:var(--surface-3)] nj-text-3
+                         hover:nj-text transition-colors"
             >
               <ChevronLeft className="h-4 w-4" />
             </button>
@@ -211,12 +211,12 @@ const DatePickerField: React.FC<DatePickerFieldProps> = ({
               <select
                 value={viewMonth}
                 onChange={(e) => setViewMonth(Number(e.target.value))}
-                className="text-sm font-semibold text-gray-800 dark:text-gray-200 bg-transparent
-                           border-none outline-none cursor-pointer hover:text-blue-600 dark:hover:text-blue-400
+                className="text-sm font-semibold nj-text bg-transparent
+                           border-none outline-none cursor-pointer hover:text-[color:var(--accent)]
                            transition-colors"
               >
                 {months.map((m: string, i: number) => (
-                  <option key={m} value={i} className="bg-white dark:bg-gray-900 font-normal">
+                  <option key={m} value={i} className="nj-surface font-normal">
                     {m}
                   </option>
                 ))}
@@ -232,8 +232,8 @@ const DatePickerField: React.FC<DatePickerFieldProps> = ({
                   const y = parseInt(e.target.value, 10);
                   if (!isNaN(y) && y >= 1900 && y <= 2100) setViewYear(y);
                 }}
-                className="w-16 text-sm font-semibold text-gray-800 dark:text-gray-200 bg-transparent
-                           border-none outline-none text-center hover:text-blue-600 dark:hover:text-blue-400
+                className="w-16 text-sm font-semibold nj-text bg-transparent
+                           border-none outline-none text-center hover:text-[color:var(--accent)]
                            transition-colors [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none
                            [&::-webkit-outer-spin-button]:appearance-none"
               />
@@ -243,8 +243,8 @@ const DatePickerField: React.FC<DatePickerFieldProps> = ({
               type="button"
               onClick={nextMonth}
               aria-label={t('nextMonth')}
-              className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500
-                         dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
+              className="p-1.5 rounded-lg hover:bg-[color:var(--surface-3)] nj-text-3
+                         hover:nj-text transition-colors"
             >
               <ChevronRight className="h-4 w-4" />
             </button>
@@ -255,7 +255,7 @@ const DatePickerField: React.FC<DatePickerFieldProps> = ({
             {(t('daysShort') as unknown as string[]).map((d: string) => (
               <div
                 key={d}
-                className="text-center text-xs font-semibold text-gray-400 dark:text-gray-500 py-1"
+                className="text-center text-xs font-semibold nj-text-3 py-1"
               >
                 {d}
               </div>
@@ -281,16 +281,17 @@ const DatePickerField: React.FC<DatePickerFieldProps> = ({
                   className={`relative flex items-center justify-center h-8 w-full rounded-lg text-sm
                               font-medium transition-all duration-100
                               ${isSelected
-                                ? 'bg-blue-600 text-white shadow-sm shadow-blue-500/30'
+                                ? 'shadow-sm'
                                 : isTodayDay
-                                ? 'text-blue-600 dark:text-blue-400 font-bold'
-                                : 'text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-950/50 hover:text-blue-700 dark:hover:text-blue-300'
+                                ? 'nj-accent font-bold'
+                                : 'nj-text hover:bg-[color:var(--surface-3)] hover:text-[color:var(--accent)]'
                               }`}
+                  style={isSelected ? { background: 'var(--accent)', color: 'var(--bg)' } : {}}
                 >
                   {day.getDate()}
                   {/* Today indicator dot */}
                   {isTodayDay && !isSelected && (
-                    <span className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-blue-500 dark:bg-blue-400" />
+                    <span className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full" style={{ background: 'var(--accent)' }} />
                   )}
                 </button>
               );
@@ -298,15 +299,14 @@ const DatePickerField: React.FC<DatePickerFieldProps> = ({
           </div>
 
           {/* Footer: jump to today */}
-          <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-800">
+          <div className="mt-3 pt-3 border-t nj-border-soft">
             <button
               type="button"
               onClick={() => {
                 handleDayClick(today);
               }}
-              className="w-full text-xs text-center text-blue-600 dark:text-blue-400 font-medium
-                         hover:text-blue-700 dark:hover:text-blue-300 transition-colors py-1
-                         hover:bg-blue-50 dark:hover:bg-blue-950/40 rounded-lg"
+              className="w-full text-xs text-center nj-accent font-medium
+                         transition-colors py-1 hover:bg-[color:var(--surface-3)] rounded-lg"
             >
               {t('goToToday')} — {formatDateLocalized(today, months)}
             </button>
