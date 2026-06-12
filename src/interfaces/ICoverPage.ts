@@ -25,6 +25,8 @@ export interface CoverPage {
   city?: string;
   /** Date as free text, e.g. "Junio 2025" */
   date: string;
+  /** Base64 string of the institutional logo */
+  logo?: string | null;
 }
 
 // ─── Context interface ─────────────────────────────────────────────────────────
