@@ -19,8 +19,8 @@ import {
   VerticalAlign,
 } from "docx";
 import { saveAs } from "file-saver";
-import type { Reference } from "../components/References/ReferencesManager";
-import { getYear } from "../components/References/ReferencesManager";
+import type { Reference } from "./referenceUtils";
+import { getYear } from "./referenceUtils";
 import type { ICitationFormatter } from "./citationFormats/types";
 import { apa7Formatter } from "./citationFormats/apa7.tsx";
 import type { CoverPage } from "../interfaces/ICoverPage";

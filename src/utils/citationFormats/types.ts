@@ -1,4 +1,4 @@
-import type { Reference } from '@/components/References/ReferencesManager';
+import type { Reference } from '@/utils/referenceUtils';
 
 // ─── Supported citation format identifiers ───────────────────────────────────
 export type CitationFormat = 'apa7' | 'apa6' | 'ieee';

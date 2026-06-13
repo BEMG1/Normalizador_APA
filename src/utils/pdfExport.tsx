@@ -1,6 +1,6 @@
 import { pdf, Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
-import type { Reference } from '../components/References/ReferencesManager';
-import { getYear } from '../components/References/ReferencesManager';
+import type { Reference } from './referenceUtils';
+import { getYear } from './referenceUtils';
 import type { ICitationFormatter } from './citationFormats/types';
 import type { CoverPage } from '../interfaces/ICoverPage';
 import { es, en } from '../i18n';
@@ -333,7 +333,7 @@ const buildPdfDocument = (
         <Page size="LETTER" style={[styles.page, styles.coverPage]}>
           <Text
             style={styles.pageNumber}
-            render={({ pageNumber }) => String(pageNumber)}
+            render={({ pageNumber }: { pageNumber: number }) => String(pageNumber)}
             fixed
           />
           <View style={{ marginTop: 150, alignItems: 'center' }}>
@@ -359,7 +359,7 @@ const buildPdfDocument = (
       <Page size="LETTER" style={styles.page}>
         <Text
           style={styles.pageNumber}
-          render={({ pageNumber }) => String(pageNumber)}
+          render={({ pageNumber }: { pageNumber: number }) => String(pageNumber)}
           fixed
         />
         {/* APA 7: repeat document title at top of first body page */}
@@ -373,7 +373,7 @@ const buildPdfDocument = (
       <Page size="LETTER" style={styles.page} break>
         <Text
           style={styles.pageNumber}
-          render={({ pageNumber }) => String(pageNumber)}
+          render={({ pageNumber }: { pageNumber: number }) => String(pageNumber)}
           fixed
         />
         <Text style={styles.referencesHeading}>{formatter.sectionHeading(lang)}</Text>

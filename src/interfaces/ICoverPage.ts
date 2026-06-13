@@ -33,6 +33,7 @@ export interface CoverPage {
 
 export interface ICoverPage {
   coverPage: CoverPage;
+  setCoverPage: React.Dispatch<React.SetStateAction<CoverPage>>;
   updateField: <K extends keyof CoverPage>(field: K, value: CoverPage[K]) => void;
   resetCoverPage: () => void;
 }

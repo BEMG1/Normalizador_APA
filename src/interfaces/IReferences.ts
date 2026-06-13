@@ -1,4 +1,4 @@
-import type { Reference } from "@/components/References/ReferencesManager";
+import type { Reference } from "@/utils/referenceUtils";
 
 export interface IReferences {
   references: Reference[];

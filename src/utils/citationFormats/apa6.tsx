@@ -1,7 +1,7 @@
 import React from 'react';
 import type { ICitationFormatter } from './types';
-import type { Reference } from '@/components/References/ReferencesManager';
-import { getYear } from '@/components/References/ReferencesManager';
+import type { Reference } from '@/utils/referenceUtils';
+import { getYear } from '@/utils/referenceUtils';
 
 // ─── Shared helpers ───────────────────────────────────────────────────────────
 
