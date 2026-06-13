@@ -699,6 +699,34 @@ code {
   background: #9f1239; /* rose-800 */
 }
 
+/* Strict Normalization Styles (Auto-Normalize) */
+.apa-normalized-doc .ProseMirror {
+  font-family: "Times New Roman", Times, serif !important;
+  font-size: 12pt !important;
+  padding: 1in !important;
+  background-color: white !important;
+  color: black !important;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  margin: 1rem auto !important;
+  max-width: 8.5in !important;
+  min-height: 11in !important;
+}
+
+.apa-normalized-doc .ProseMirror p {
+  text-indent: 1.27cm !important;
+  line-height: 2 !important;
+  text-align: left !important;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+.apa-normalized-doc .ProseMirror h1,
+.apa-normalized-doc .ProseMirror h2,
+.apa-normalized-doc .ProseMirror h3 {
+  color: black !important;
+}
+
+
 /* ─── PRINT STYLES FOR PDF EXPORT ─────────────────────────────────────────── */
 @media print {
   body {

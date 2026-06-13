@@ -184,4 +184,64 @@ export const en: TranslationDictionary = {
   supportReqFeature: 'Feature request',
   supportReqGeneral: 'General comment',
   supportReqOther: 'Other',
+
+  // Compliance Modal
+  complianceEvalTitle: 'Compliance Evaluation',
+  complianceEvalNorm: 'Evaluated Norm: {norm}',
+  complianceEvalScore: 'Current compliance',
+  complianceElementsOk: 'Compliant elements:',
+  complianceElementsMissing: 'Missing elements:',
+  complianceElementsWarning: 'Warnings:',
+  close: 'Close',
+  reviewMyDocument: 'Review My Document',
+  normalizeBtn: 'Auto Normalize',
+
+  // Normalization Missing
+  missingForNormTitle: 'Missing items to apply norms',
+  missingForNormDesc: 'The following structural elements must be completed to enable automatic normalization:',
+  missingNormTitle: 'Set a main title.',
+  missingNormHeadings: 'Define heading levels.',
+  missingNormRefs: 'Add bibliographic references.',
+  missingNormCover: 'Complete the cover page.',
+  missingNormCitations: 'Incorporate in-text citations.',
+
+  // Engine Rule Names (from API)
+  'Portada incompleta': 'Incomplete Cover Page',
+  'Portada': 'Cover Page',
+  'Fuente permitida': 'Allowed Font',
+  'Referencias bibliográficas': 'Bibliographic References',
+  'Interlineado doble': 'Double Spacing',
+  'Márgenes correctos': 'Correct Margins',
+  'Jerarquía de encabezados': 'Heading Hierarchy',
+
+  // APA6-specific i18n keys
+  'apa6.font.name': 'Allowed Font (APA 6)',
+  'apa6.font.desc': 'APA 6 requires Times New Roman at 12pt.',
+  'apa6.font.error': 'Times New Roman 12pt font was not detected.',
+
+  // IEEE i18n keys
+  'ieee.general.name': 'General IEEE Verification',
+  'ieee.general.desc': 'Base heuristic verification for IEEE format.',
+  'ieee.general.twoCol': 'Two-column layout',
+  'ieee.general.warning': 'Two-column layout cannot be verified from extracted text.',
+
+  // CrossReferenceRule i18n keys
+  'crossRef.name': 'Citations/References Match',
+  'crossRef.desc': 'Verifies that every citation has a reference and every reference has been cited.',
+  'crossRef.ok': 'All citations and references match correctly.',
+  'crossRef.bothMissing': 'There are in-text citations without a reference and references without citations.',
+  'crossRef.orphanCitations': 'There are in-text citations that have no corresponding reference in the list.',
+  'crossRef.unusedRefs': 'There are references that have not been cited in the text: ',
+  'crossRef.empty': 'No citations or references found to cross-reference.',
+  'crossRef.untitled': 'Untitled',
+
+  // Engine Rule Messages (from API)
+  'Se mencionan referencias, pero no parece haber una sección con encabezado formal.': 'References are mentioned, but no formal section heading was found.',
+  'No se encontró la sección de Referencias.': 'References section was not found.',
+  'Se encontró un encabezado de nivel 2 sin un nivel 1 previo.': 'A level 2 heading was found without a preceding level 1 heading.',
+  'No se encontraron encabezados en el documento.': 'No headings were found in the document.',
+  'Se detectó una fuente no recomendada (ej. Comic Sans).': 'A non-recommended font was detected (e.g. Comic Sans).',
+  'El documento es demasiado corto o no tiene portada clara.': 'The document is too short or has no clear cover page.',
+  'No se pudo verificar claramente la estructura de la portada.': 'The cover page structure could not be clearly verified.',
+  'Referencia sin título': 'Untitled reference'
 };

@@ -1,22 +1,34 @@
 import { useRef, useState, useEffect } from 'react';
 import mammoth from 'mammoth';
 import { Upload, Trash2, Link as LinkIcon, Unlink, ChevronDown, BookOpen } from 'lucide-react';
-import { useDocument, useReferences, useLanguage } from '@/context/AppContext';
+import { useDocument, useReferences, useLanguage, useCitationFormat, useCoverPage } from '@/context/AppContext';
 import { useEditor, EditorContent } from '@tiptap/react';
 import { BubbleMenu } from '@tiptap/react/menus';
 import StarterKit from '@tiptap/starter-kit';
 import { ReferenceMark } from './ReferenceMark';
-import { getReferenceText, type Reference, getYear } from '@/components/References/ReferencesManager';
+import { getReferenceText, type Reference, getYear } from '@/utils/referenceUtils';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { ComplianceModal } from './ComplianceModal';
+import { ComplianceEngine } from '@/lib/ComplianceEngine/ComplianceEngine';
+import type { ComplianceReport } from '@/lib/ComplianceEngine/types';
+import { DocumentExtractor } from '@/utils/DocumentExtractor';
+
 const DocumentEditor: React.FC = () => {
   const {
     documentText: text,
     setDocumentText: setText,
+    setComplianceScore,
     setDocumentTitle: onTitleChange,
+    isComplianceModalOpen,
+    setIsComplianceModalOpen,
   } = useDocument();
-  const { references } = useReferences();
+  const { references, setReferences } = useReferences();
+  const { coverPage, setCoverPage } = useCoverPage();
   const { t, language } = useLanguage();
-  
+  const { citationFormat } = useCitationFormat();
+  const [complianceReport, setComplianceReport] = useState<ComplianceReport | null>(null);
+  const [isNormalized, setIsNormalized] = useState(false);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
   const editorContainerRef = useRef<HTMLDivElement>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -24,7 +36,7 @@ const DocumentEditor: React.FC = () => {
 
   // Tooltip state
   const [hoverInfo, setHoverInfo] = useState<{ ref: Reference; x: number; y: number } | null>(null);
-  
+
   // Custom dropdown state for BubbleMenu
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -52,7 +64,7 @@ const DocumentEditor: React.FC = () => {
   // Handle hover tooltips
   useEffect(() => {
     if (!editorContainerRef.current) return;
-    
+
     const handleMouseOver = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
       const refMark = target.closest('[data-reference-id]');
@@ -141,12 +153,32 @@ const DocumentEditor: React.FC = () => {
   // Handle external text updates (like from localStorage on load)
   useEffect(() => {
     if (editor && !editor.isDestroyed && text && editor.getHTML() !== text) {
-      // Only set content if the editor is empty or on initial load to avoid jumping cursor
       if (editor.isEmpty) {
         editor.commands.setContent(text);
       }
     }
   }, [editor, text]);
+
+  // Dynamic compliance evaluation
+  useEffect(() => {
+    if (!editor || !text) return;
+
+    const timeoutId = setTimeout(() => {
+      const report = ComplianceEngine.analyzeDocument({
+        html: text,
+        text: editor.getText(),
+        isNormalized,
+        hasExtractedCoverPage: coverPage.enabled,
+        hasExtractedReferences: references.length > 0,
+        references
+      }, citationFormat);
+
+      setComplianceScore(report.score);
+      setComplianceReport(report);
+    }, 500); // Debounce 500ms to avoid locking the UI
+
+    return () => clearTimeout(timeoutId);
+  }, [text, citationFormat, isNormalized, editor, setComplianceScore, references, coverPage.enabled]);
 
   // --- File handling ---
 
@@ -156,23 +188,73 @@ const DocumentEditor: React.FC = () => {
       return;
     }
     setIsLoading(true);
+    setIsNormalized(false);
     try {
       const arrayBuffer = await file.arrayBuffer();
       // Mammoth converts DOCX to HTML
       const result = await mammoth.convertToHtml({ arrayBuffer });
-      
-      if (editor) {
-        editor.commands.setContent(result.value);
-        setText(editor.getHTML());
+      const rawTextResult = await mammoth.extractRawText({ arrayBuffer });
+
+      // Intelligent Extraction
+      const { coverPage, references: extractedRefs, bodyHtml } = DocumentExtractor.extract(result.value);
+
+      if (coverPage) {
+        setCoverPage(coverPage);
       }
       
+      if (extractedRefs.length > 0) {
+        setReferences(extractedRefs);
+      }
+
+      if (editor) {
+        editor.commands.setContent(bodyHtml);
+        setText(editor.getHTML());
+      }
+
       const baseName = file.name.slice(0, -5); // remove '.docx'
+
+      // Run Compliance Engine
+      const report = ComplianceEngine.analyzeDocument(
+        { 
+          html: bodyHtml, 
+          text: rawTextResult.value, 
+          arrayBuffer, 
+          isNormalized: false,
+          hasExtractedCoverPage: coverPage !== null,
+          hasExtractedReferences: extractedRefs.length > 0,
+          references: extractedRefs.length > 0 ? extractedRefs : references,
+        },
+        citationFormat
+      );
+      setComplianceReport(report);
+      setIsComplianceModalOpen(true);
+
       onTitleChange?.(baseName);
     } catch (error) {
       console.error('Error extracting text from Word document', error);
       alert(t('errorReadingWord'));
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleNormalize = () => {
+    setIsNormalized(true);
+    if (editor) {
+      const html = editor.getHTML();
+      const rawText = editor.getText();
+      const report = ComplianceEngine.analyzeDocument(
+        { 
+          html, 
+          text: rawText, 
+          isNormalized: true,
+          hasExtractedCoverPage: coverPage.enabled,
+          hasExtractedReferences: references.length > 0,
+          references
+        },
+        citationFormat
+      );
+      setComplianceReport(report);
     }
   };
 
@@ -233,8 +315,8 @@ const DocumentEditor: React.FC = () => {
       )}
 
       {/* Bubble Menu for Reference Association */}
-      <BubbleMenu 
-        editor={editor} 
+      <BubbleMenu
+        editor={editor}
         shouldShow={({ editor, state }) => editor.isFocused && !state.selection.empty}
         className="flex rounded-md p-1 gap-1 items-center z-40" style={{ background: 'var(--surface)', border: '1px solid var(--border)', boxShadow: '0 4px 12px -4px rgba(0,0,0,.4)' }}
       >
@@ -277,6 +359,7 @@ const DocumentEditor: React.FC = () => {
                     {t('availableSources')}
                   </span>
                 </div>
+
                 <div className="max-h-32 overflow-y-auto p-1.5 scrollbar-thin">
                   {references.length === 0 ? (
                     <div className="px-4 py-8 text-center">
@@ -338,7 +421,6 @@ const DocumentEditor: React.FC = () => {
       </div>
 
       {/* Format toolbar */}
-      <>
         <div className="mb-1 flex items-center gap-1">
           <Tooltip>
             <TooltipTrigger asChild>
@@ -394,11 +476,15 @@ const DocumentEditor: React.FC = () => {
             </TooltipContent>
           </Tooltip>
         </div>
-      </>
+        {isNormalized && (
+          <div className="mb-2 px-3 py-2 bg-green-900/30 border border-green-800/50 rounded-md text-sm text-green-300 flex items-center gap-2">
+            Documento normalizado automáticamente según reglas de {citationFormat === 'apa7' ? 'APA 7' : citationFormat === 'apa6' ? 'APA 6' : 'IEEE'}.
+          </div>
+        )}
 
       {/* Editor area */}
       <div
-        className="relative flex-1 rounded-md overflow-y-auto scrollbar-thin"
+        className={`relative flex-1 max-h-[70vh] border border-gray-300 dark:border-gray-700 rounded-md shadow-sm bg-white dark:bg-gray-800 overflow-y-auto scrollbar-thin ${isNormalized ? 'apa-normalized-doc' : ''}`}
         style={{ background: 'var(--surface)', border: `1px solid ${isDragging ? 'var(--accent)' : 'var(--border)'}` }}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
@@ -417,7 +503,13 @@ const DocumentEditor: React.FC = () => {
           style={{ background: 'var(--paper)', color: 'var(--paper-ink, var(--text))' }}
         />
       </div>
-      
+
+      <ComplianceModal
+        report={complianceReport}
+        isOpen={isComplianceModalOpen}
+        onClose={() => setIsComplianceModalOpen(false)}
+        onNormalize={handleNormalize}
+      />
     </div>
   );
 };

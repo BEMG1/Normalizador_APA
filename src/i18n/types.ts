@@ -192,4 +192,25 @@ export interface TranslationDictionary {
   supportReqFeature: string;
   supportReqGeneral: string;
   supportReqOther: string;
+
+  // Compliance Modal
+  complianceEvalTitle: string;
+  complianceEvalNorm: string;
+  complianceEvalScore: string;
+  complianceElementsOk: string;
+  complianceElementsMissing: string;
+  complianceElementsWarning: string;
+  close: string;
+  reviewMyDocument: string;
+  normalizeBtn: string;
+  
+  // Normalization Missing
+  missingForNormTitle: string;
+  missingForNormDesc: string;
+  missingNormTitle: string;
+  missingNormHeadings: string;
+  missingNormRefs: string;
+  missingNormCover: string;
+  missingNormCitations: string;
+  [key: string]: string | string[];
 }

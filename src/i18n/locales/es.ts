@@ -184,4 +184,64 @@ export const es: TranslationDictionary = {
   supportReqFeature: 'Solicitud de nueva funcionalidad',
   supportReqGeneral: 'Comentario general',
   supportReqOther: 'Otro',
+
+  // Compliance Modal
+  complianceEvalTitle: 'Evaluación de Cumplimiento',
+  complianceEvalNorm: 'Norma evaluada: {norm}',
+  complianceEvalScore: 'Cumplimiento actual',
+  complianceElementsOk: 'Elementos conformes:',
+  complianceElementsMissing: 'Elementos faltantes:',
+  complianceElementsWarning: 'Advertencias:',
+  close: 'Cerrar',
+  reviewMyDocument: 'Revisar mi Documento',
+  normalizeBtn: 'Normalizar Automáticamente',
+
+  // Normalization Missing
+  missingForNormTitle: 'Faltantes para aplicar normas',
+  missingForNormDesc: 'Debes completar estos elementos antes de intentar nuevamente la normalización automática:',
+  missingNormTitle: 'Establecer título principal.',
+  missingNormHeadings: 'Definir niveles de encabezado.',
+  missingNormRefs: 'Agregar referencias bibliográficas.',
+  missingNormCover: 'Completar portada.',
+  missingNormCitations: 'Incorporar citas dentro del texto.',
+
+  // Engine Rule Names (from API)
+  'Portada incompleta': 'Portada incompleta',
+  'Portada': 'Portada',
+  'Fuente permitida': 'Fuente permitida',
+  'Referencias bibliográficas': 'Referencias bibliográficas',
+  'Interlineado doble': 'Interlineado doble',
+  'Márgenes correctos': 'Márgenes correctos',
+  'Jerarquía de encabezados': 'Jerarquía de encabezados',
+
+  // APA6-specific i18n keys
+  'apa6.font.name': 'Fuente permitida (APA 6)',
+  'apa6.font.desc': 'APA 6 exige Times New Roman a 12pt.',
+  'apa6.font.error': 'No se detectó la fuente Times New Roman 12pt.',
+
+  // IEEE i18n keys
+  'ieee.general.name': 'Verificación general IEEE',
+  'ieee.general.desc': 'Verificación heurística base para IEEE.',
+  'ieee.general.twoCol': 'Formato a dos columnas',
+  'ieee.general.warning': 'No se puede verificar el formato a dos columnas con el texto extraído.',
+
+  // CrossReferenceRule i18n keys
+  'crossRef.name': 'Correspondencia Citas/Referencias',
+  'crossRef.desc': 'Verifica que toda cita tenga su referencia y toda referencia haya sido citada en el texto.',
+  'crossRef.ok': 'Todas las citas y referencias coinciden correctamente.',
+  'crossRef.bothMissing': 'Existen citas en el texto sin referencia y referencias en la lista sin ser citadas.',
+  'crossRef.orphanCitations': 'Hay citas en el texto que no tienen su referencia correspondiente en la lista.',
+  'crossRef.unusedRefs': 'Hay referencias en la lista que no han sido citadas en el texto: ',
+  'crossRef.empty': 'No se encontraron citas ni referencias para cruzar.',
+  'crossRef.untitled': 'Sin título',
+
+  // Engine Rule Messages (from API)
+  'Se mencionan referencias, pero no parece haber una sección con encabezado formal.': 'Se mencionan referencias, pero no parece haber una sección con encabezado formal.',
+  'No se encontró la sección de Referencias.': 'No se encontró la sección de Referencias.',
+  'Se encontró un encabezado de nivel 2 sin un nivel 1 previo.': 'Se encontró un encabezado de nivel 2 sin un nivel 1 previo.',
+  'No se encontraron encabezados en el documento.': 'No se encontraron encabezados en el documento.',
+  'Se detectó una fuente no recomendada (ej. Comic Sans).': 'Se detectó una fuente no recomendada (ej. Comic Sans).',
+  'El documento es demasiado corto o no tiene portada clara.': 'El documento es demasiado corto o no tiene portada clara.',
+  'No se pudo verificar claramente la estructura de la portada.': 'No se pudo verificar claramente la estructura de la portada.',
+  'Referencia sin título': 'Referencia sin título'
 };

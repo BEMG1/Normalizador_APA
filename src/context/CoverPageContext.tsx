@@ -48,8 +48,8 @@ const CoverPageProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   }, [setCoverPage]);
 
   const value = useMemo(
-    () => ({ coverPage, updateField, resetCoverPage }),
-    [coverPage, updateField, resetCoverPage],
+    () => ({ coverPage, setCoverPage, updateField, resetCoverPage }),
+    [coverPage, setCoverPage, updateField, resetCoverPage],
   );
 
   return (

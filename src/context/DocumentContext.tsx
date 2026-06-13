@@ -11,6 +11,9 @@ const DocumentProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     "Document_Citara",
   );
 
+  const [complianceScore, setComplianceScore] = React.useState<number | null>(null);
+  const [isComplianceModalOpen, setIsComplianceModalOpen] = React.useState<boolean>(false);
+
   const isExportDisabled = !documentText.trim();
 
   const value = useMemo(
@@ -20,8 +23,12 @@ const DocumentProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       documentTitle,
       setDocumentTitle,
       isExportDisabled,
+      complianceScore,
+      setComplianceScore,
+      isComplianceModalOpen,
+      setIsComplianceModalOpen,
     }),
-    [documentText, setDocumentText, documentTitle, setDocumentTitle, isExportDisabled]
+    [documentText, setDocumentText, documentTitle, setDocumentTitle, isExportDisabled, complianceScore, isComplianceModalOpen]
   );
 
   return (

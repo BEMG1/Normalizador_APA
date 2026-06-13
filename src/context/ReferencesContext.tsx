@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useMemo, type ReactNode } from "react";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
-import type { Reference } from "@/components/References/ReferencesManager";
+import type { Reference } from "@/utils/referenceUtils";
 import type { IReferences } from "@/interfaces/IReferences";
 
 const ReferencesContext = createContext<IReferences | undefined>(undefined);
